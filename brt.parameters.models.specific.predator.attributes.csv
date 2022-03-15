@@ -1,0 +1,12 @@
+﻿Model features,Vertebrate species Richness,Weighted Body Size,Shark abundance
+,,,Log[SumMaxN +1]
+Tree complexity,5,5,5
+Number of Trees,50,50,50
+Learning Rate,0.01,0.01,0.01
+Bag Fraction,0.5,0.5,0.5
+Family,Poisson,Gaussian,Gaussian
+Max Trees,1000,1000,1000
+Spatial autocorrelation in observations,0.22,0.36,0.44
+,,,
+Spatial autocorrelation in residuals of final autocovariate model,0.023,0.24,-0.13
+,,,
