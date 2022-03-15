@@ -5,25 +5,60 @@ date: "3/15/2022"
 output: html_document
 ---
 
+Loading libraries
+```{r}
+library(readr)
+library(gbm)
+```
+
+Importing data
+```{r}
+f <- read_csv("raw.sr.bodysize.sharkabundance.csv")
+```
+
+Plotting densities of species richness, body size, and shark abundance:
+
+Species Richness
+```{r}
+#Species Richness
+sr.density <- density(f$SR)
+sr.density.plot <- plot(sr.density)
+```
+
+Body Size
+```{r}
+#Species Richness
+body.size.density <- density(f$MaxL)
+body.size.density.plot <- plot(body.size.density)
+```
+
+Shark Abundance
+```{r}
+#Species Richness
+shark.abundance.density <- density(f$TaSharks)
+shark.abundance.density.plot <- plot(shark.abundance.density)
+#graph is weird, includes zeros in the calculation for some reason
+```
+
+Boosted Regression Trees
+
+Species Richness
+```{r}
+#use species richness as the response variable
+boost.sp.rich.tree <- gbm(f$SR~., data = )
+```
+
+Body size
 ```{r}
 
 ```
 
+Shark Abundance
 ```{r}
 
 ```
 
-```{r}
 
-```
-
-```{r}
-
-```
-
-```{r}
-
-```
 
 ```{r}
 
