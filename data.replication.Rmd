@@ -9,11 +9,15 @@ Loading libraries
 ```{r}
 library(readr)
 library(gbm)
+library(tidyverse)
+library(ggplot2)
+library(tm)
 ```
 
 Importing data
 ```{r}
 f <- read_csv("raw.sr.bodysize.sharkabundance.csv")
+colnames(f)[1] <- "location"
 ```
 
 Plotting densities of species richness, body size, and shark abundance:
@@ -27,17 +31,18 @@ sr.density.plot <- plot(sr.density)
 
 Body Size
 ```{r}
-#Species Richness
-body.size.density <- density(f$MaxL)
+#Body Size
+body.size.density <- density(f$MaxL, from = 0)
 body.size.density.plot <- plot(body.size.density)
 ```
 
 Shark Abundance
 ```{r}
-#Species Richness
-shark.abundance.density <- density(f$TaSharks)
+#Shark Abundance
+shark.abund.bysite <- f %>% group_by(f$...1) 
+shark.abundance.density <- density(f$TaSharks, from = 0) 
 shark.abundance.density.plot <- plot(shark.abundance.density)
-#graph is weird, includes zeros in the calculation for some reason
+
 ```
 
 Boosted Regression Trees
@@ -59,9 +64,11 @@ Shark Abundance
 ```
 
 
-
+Shark Abundance Box plots
 ```{r}
-
+shark.data <- gsub()
+shark.abund.boxplot <- boxplot(f$TaSharks~f$location)
+shark.abund.boxplot
 ```
 
 ```{r}
