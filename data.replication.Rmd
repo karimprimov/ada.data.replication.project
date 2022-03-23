@@ -21,7 +21,7 @@ Plotting densities of species richness, body size, and shark abundance:
 Species Richness
 ```{r}
 #Species Richness
-sr.density <- density(f$SR)
+sr.density <- density(f$SR, from = 0)
 sr.density.plot <- plot(sr.density)
 ```
 
