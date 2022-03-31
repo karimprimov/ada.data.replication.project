@@ -16,8 +16,12 @@ library(tm)
 
 Importing data
 ```{r}
+library(readxl)
 f <- read_csv("raw.sr.bodysize.sharkabundance.csv")
 colnames(f)[1] <- "location"
+f2 <- read_excel("raw.sr.bodysize.sharkabundance.xlsx")
+f2
+colnames(f2)[1] <- "location"
 ```
 
 Plotting densities of species richness, body size, and shark abundance:
@@ -71,15 +75,18 @@ Shark Abundance
 ```
 
 
-Shark Abundance Box plots
+Shark Abundance Box plots (Figure 1E)
 ```{r}
 f$location <- gsub("[0-9]", "", as.character(f$location)) #removing numbers from location column in df "f"
 shark.abund.boxplot <- boxplot(f$TaSharks~f$location)
 shark.abund.boxplot
+library(tidyverse)
+tim <- filter(f, location == "TIM") 
+tim
 ```
 
 ```{r}
-
+#
 ```
 
 ```{r}
