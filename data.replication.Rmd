@@ -43,8 +43,11 @@ body.size.density.plot <- plot(body.size.density)
 Shark Abundance
 ```{r}
 #Shark Abundance
-shark.abund.bysite <- f %>% group_by(f$...1) 
-shark.abundance.density <- density(f$TaSharks, from = 0) 
+shark.abund.bysite <- f %>% group_by(f$location) 
+#decomposing TaSharks by doing ((e^TaSharks) -1)
+fb <- f %>%
+  mutate(shark.abundance = (exp(f$TaSharks)-1)) #gives me sumMaxN, but I just need MaxN for Figure 1D, not sure how to get MaxN for each location
+shark.abundance.density <- density(fb$shark.abundance, from = 0) 
 shark.abundance.density.plot <- plot(shark.abundance.density)
 
 ```
@@ -80,9 +83,8 @@ Shark Abundance Box plots (Figure 1E)
 f$location <- gsub("[0-9]", "", as.character(f$location)) #removing numbers from location column in df "f"
 shark.abund.boxplot <- boxplot(f$TaSharks~f$location)
 shark.abund.boxplot
-library(tidyverse)
-tim <- filter(f, location == "TIM") 
-tim
+
+
 ```
 
 ```{r}
