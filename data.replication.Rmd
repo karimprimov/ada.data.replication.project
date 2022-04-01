@@ -89,8 +89,8 @@ Shark Abundance
 
 Shark Abundance Box plots (Figure 1E)
 ```{r}
-f$location <- gsub("[0-9]", "", as.character(f$location)) #removing numbers from location column in df "f"
-shark.abund.boxplot <- boxplot(f$TaSharks~f$location)
+fb$location <- gsub("[0-9]", "", as.character(f$location)) #removing numbers from location column in df "f"
+shark.abund.boxplot <- boxplot(fb$TaSharks~fb$location)
 shark.abund.boxplot
 
 
