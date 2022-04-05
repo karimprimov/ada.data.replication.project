@@ -55,10 +55,6 @@ a <- ggplot(fb, aes(x = Shark.Abundance))
 a + geom_density() 
 
 summary(fb$Shark.Abundance)
-
-#shark.abundance.density <- density(fb$Shark.Abundance, from = 0) 
-#shark.abundance.density.plot <- plot(shark.abundance.density)
-
 ```
 
 Boosted Regression Trees
@@ -90,7 +86,7 @@ Shark Abundance
 Shark Abundance Box plots (Figure 1E)
 ```{r}
 fb$location <- gsub("[0-9]", "", as.character(f$location)) #removing numbers from location column in df "f"
-shark.abund.boxplot <- boxplot(fb$TaSharks~fb$location)
+shark.abund.boxplot <- boxplot(fb$Shark.Abundance~fb$location)
 shark.abund.boxplot
 
 
