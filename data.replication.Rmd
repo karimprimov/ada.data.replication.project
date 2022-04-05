@@ -44,16 +44,19 @@ body.size.density.plot <- plot(body.size.density)
 ```
 
 Shark Abundance
+
+I cannot explain how the difference in what I get and what the publication presents for sharks abundance (not the same data used for the publication figures)
 ```{r}
 #Shark Abundance
 #shark.abund.bysite <- f %>% group_by(f$location) 
 #decomposing TaSharks by doing ((e^TaSharks) -1)
 fb <- f %>%
-  mutate(Shark.Abundance = (expm1(f$TaSharks)))
+  mutate(Shark.Abundance = exp(TaSharks)-1)
 a <- ggplot(fb, aes(x = Shark.Abundance)) 
 a + geom_density() 
 
 summary(fb$Shark.Abundance)
+summary(fb)
 ```
 
 Boosted Regression Trees
