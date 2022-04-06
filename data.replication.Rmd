@@ -64,9 +64,9 @@ Boosted Regression Trees
 Species Richness
 ```{r}
 #use species richness as the response variable
-boost.sp.rich.tree <- gbm(fb$SR~fb$Shark.Abundance+fb$MaxL+fb$Depth+fb$Chla_median+fb$Chla_sd+fb$SST_median+fb$SST_sd
+boost.sp.rich.tree <- gbm(formula = fb$SR~+fb$MaxL+fb$Depth+fb$Chla_median+fb$Chla_sd+fb$SST_median+fb$SST_sd
                           +fb$pop_50km+fb$pop_500km+fb$Dist_nearest_pop+fb$Dist_nearest_market+fb$HDI+fb$Dcoast_km+
-                            fb$DCoralT_km+fb$DistSeamount_km+fb$GDP+fb$Dist_SMT1500+fb$FishingEffort01+fb$FishingEffort05, data = fb)
+                            fb$DCoralT_km+fb$DistSeamount_km+fb$GDP+fb$Dist_SMT1500+fb$FishingEffort01+fb$FishingEffort05, data = fb, n.trees = 100000)
 summary(boost.sp.rich.tree)
 
 boost.sp.rich.tree.100x <- gbm.more(boost.sp.rich.tree, 100, verbose = FALSE)
