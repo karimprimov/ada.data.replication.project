@@ -70,14 +70,14 @@ boost.sp.rich.tree <- gbm(formula = fb$SR~+fb$MaxL+fb$Depth+fb$Chla_median+fb$Ch
 
 
 
-boost.sp.rich.tree <- gbm(formula = SR+MaxL ~+Dcoast_km+DCoralT_km+Depth+SST_median+SST_sd+DistSeamount_km,data = fb, n.trees = 100000) 
+#boost.sp.rich.tree <- gbm(formula = SR+MaxL ~+Dcoast_km+DCoralT_km+Depth+SST_median+SST_sd+DistSeamount_km,data = fb, n.trees = 100000) 
                             
                           
 
-summary(boost.sp.rich.tree)
+#summary(boost.sp.rich.tree)
 
-#boost.sp.rich.tree.100x <- gbm.more(boost.sp.rich.tree, 100, verbose = FALSE)
-#summary(boost.sp.rich.tree.100x)
+boost.sp.rich.tree.100x <- gbm.more(boost.sp.rich.tree, 100, verbose = FALSE)
+summary(boost.sp.rich.tree.100x)
 
 ```
 
