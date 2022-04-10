@@ -5,6 +5,17 @@ date: "3/15/2022"
 output: html_document
 ---
 
+Title: Remote reefs and seamounts are the last refuges for marine predators across the Indo-Pacific
+
+Link to the paper:
+https://journals.plos.org/plosbiology/article?id=10.1371/journal.pbio.3000366#pbio.3000366.s007
+
+
+Introduction: 
+With technological advancements taking place in the fisheries industry, there has been unprecedented access to populations of marine predators including sharks, tuna, and billfishes, among others. In order to protect and preserve populations of marine predators, it is necessary to identify critical habitats of these marine predators across shallow coral reefs and in the deep ocean. 1041 mid-water baited videos were used to survey sharks and other pelagic predators. Three predator community attributes were modeled as a function of either geomorphology, environmental conditions, and human pressures: species richness, mean maximum body size, and shark abundance. All three attributed were primarily driven by geomorphology and environmental conditions, while human pressures, specifically distance to human markets, influenced body size and shark abundance, but not species richness. Refuges were identified > 1250 km from human markets and were identified as remote and shallow seabeds (e.g. seamounts, submerged banks, and reefs). Many of the refuges for both large-bodied predators and hotspots of shark abundance are currently under-represented within no-take marine protected areas (MPAs), and population recovery is unlikely to occur without strategic implementation of large, no-take MPAs that include these remote refuges as well as coastal areas. 
+
+
+
 Loading libraries
 ```{r}
 library(readr)
@@ -14,10 +25,6 @@ library(ggplot2)
 library(tm)
 library(expm)
 ```
-
-
-Link to the paper
-https://journals.plos.org/plosbiology/article?id=10.1371/journal.pbio.3000366#pbio.3000366.s007
 
 
 Importing data
@@ -59,34 +66,76 @@ summary(fb$Shark.Abundance)
 summary(fb)
 ```
 
+
 Boosted Regression Trees
 
-Species Richness
+Note: very odd how they give you the results in both figure and chart format but don't give background on how they went about narrowing down the number of community attributes used for the regression trees, or how they defined each variable as either a environmental, geomorphological, or human pressure predatory community attribute
+
+Species Richness (all variables)
 ```{r}
-#use species richness as the response variable
+#use species richness as the response variable, including all variables
 boost.sp.rich.tree <- gbm(formula = fb$SR~+fb$MaxL+fb$Depth+fb$Chla_median+fb$Chla_sd+fb$SST_median+fb$SST_sd
-                          +fb$pop_50km+fb$pop_500km+fb$Dist_nearest_pop+fb$Dist_nearest_market+fb$HDI+fb$Dcoast_km+
-                            fb$DCoralT_km+fb$DistSeamount_km+fb$GDP+fb$Dist_SMT1500+fb$FishingEffort01+fb$FishingEffort05, data = fb, n.trees = 100000)
-
-
-
-#boost.sp.rich.tree <- gbm(formula = SR+MaxL ~+Dcoast_km+DCoralT_km+Depth+SST_median+SST_sd+DistSeamount_km,data = fb, n.trees = 100000) 
-                            
-                          
-
-#summary(boost.sp.rich.tree)
+                          +fb$pop_50km+fb$pop_500km+fb$Dist_nearest_pop+fb$Dist_nearest_market+fb$HDI+fb$Dcoast_km+fb$DCoralT_km+fb$DistSeamount_km+fb$GDP+fb$Dist_SMT1500+fb$FishingEffort01+fb$FishingEffort05, data = fb, n.trees = 100000)
 
 boost.sp.rich.tree.100x <- gbm.more(boost.sp.rich.tree, 100, verbose = FALSE)
 summary(boost.sp.rich.tree.100x)
 
 ```
 
-Body size
-```{r}
 
+Species Richness(using only environmental community attributes)
+
+```{r}
+boost.sp.rich.enviro.tree <- gbm(formula = SR~DCoralT_km+Chla_median+Chla_sd+SST_median+SST_sd, data = fb, n.trees = 100000)
+
+boost.sp.rich.enviro.tree.100x <- gbm.more(boost.sp.rich.enviro.tree, 100, verbose = FALSE)
+summary(boost.sp.rich.enviro.tree.100x)
 ```
 
-Shark Abundance
+Species Richness(using only geomorphological community attributes)
+
+```{r}
+boost.sp.rich.geomorph.tree <- gbm(formula = SR~Depth+Dcoast_km+DistSeamount_km+Dist_SMT1500, data = fb, n.trees = 100000)
+
+boost.sp.rich.geomorph.tree.100x <- gbm.more(boost.sp.rich.geomorph.tree, 100, verbose = FALSE)
+summary(boost.sp.rich.geomorph.tree.100x)
+```
+
+Species Richness(using only human pressure community attributes)
+
+```{r}
+boost.sp.rich.hum.press.tree <- gbm(formula = fb$SR~pop_50km+pop_500km+Dist_nearest_pop+Dist_nearest_market+HDI+GDP+FishingEffort01+FishingEffort05, data = fb, n.trees = 100000)
+
+boost.sp.rich.hum.press.tree.100x <- gbm.more(boost.sp.rich.hum.press.tree, 100, verbose = FALSE)
+summary(boost.sp.rich.hum.press.tree.100x)
+```
+
+Running BRT using results from [Species Richness(using only environmental community attributes) + Species Richness(using only geomorphological community attributes) + Species Richness(using only human pressure community attributes)]
+Only including values with relative contribution of >=13%
+```{r}
+boost.sp.rich.combo.tree <- gbm(formula = fb$SR~SST_sd+DCoralT_km+SST_median+Dcoast_km+Depth+DistSeamount_km+Dist_SMT1500+Dist_nearest_pop+Dist_nearest_market+FishingEffort01, data = fb, n.trees = 100000)
+
+boost.sp.rich.combo.tree.100x <- gbm.more(boost.sp.rich.combo.tree, 100, verbose = FALSE)
+summary(boost.sp.rich.combo.tree.100x)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Body size
 ```{r}
 
 ```
