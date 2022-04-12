@@ -32,14 +32,19 @@ library(tm)
 library(expm)
 library(e1071)
 library(pdp)
+library(knitr)
 ```
 
 
 Importing data
 ```{r}
 library(readxl)
-f <- read_excel("raw.sr.bodysize.sharkabundance.xlsx")
+f <- read_excel("data/raw.sr.bodysize.sharkabundance.xlsx")
 colnames(f)[1] <- "location"
+```
+
+```{r}
+knitr::opts_chunk$set(fig.path = "images/")
 ```
 
 Plotting densities of species richness, body size, and shark abundance:
@@ -50,6 +55,16 @@ Species Richness
 sr.density <- density(f$SR, from = 0)
 sr.density.plot <- plot(sr.density)
 ```
+
+```{r}
+{r echo=FALSE, width="200px"}
+knitr::include_graphics("images/Figure1B.png")
+```
+
+
+
+
+
 
 Body Size
 ```{r}
@@ -200,9 +215,6 @@ summary(boost.body.size.hum.press.tree.100x)
 
 
 
-
-
-
 Partial Dependence Plot (Body size ~ Depth)
 ```{r}
 
@@ -214,7 +226,6 @@ par.Depth <- partial(model.svm, pred.var = c("Depth"), chull = TRUE)
 plot.Depth <- autoplot(par.Depth, contour = TRUE)
 plot.Depth
 ```
-
 
 
 Partial Dependence Plot (Body size ~ Distance to nearest market)
@@ -233,7 +244,33 @@ plot.Dist_nearest_market
 
 
 
+Plotting densities of species richness and body size (shark abundance not included)
 
+Species Richness
+```{r}
+#Species Richness
+fb.diff.manage.regimes <- fb %>% 
+  group_by(fb$location)
+
+
+
+
+p <- ggplot(data = fb, aes(y = location, x = SR)) + facet_wrap(~location)
+p + geom_density()
+
+
+
+fb <- f %>% mutate(Shark.Abundance = exp(TaSharks)-1)
+a <- ggplot(fb, aes(x = Shark.Abundance)) 
+a + geom_density() 
+
+summary(fb$Shark.Abundance)
+summary(fb)  
+  
+
+sr.density <- density(f$SR, from = 0) 
+sr.density.plot <- plot(sr.density) 
+```
 
 
 
