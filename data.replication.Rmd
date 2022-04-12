@@ -56,9 +56,10 @@ sr.density <- density(f$SR, from = 0)
 sr.density.plot <- plot(sr.density)
 ```
 
+ASK ABOUT INSERTING SNAPSHOTS INTO RMD FILE!!
 ```{r}
-{r echo=FALSE, width="200px"}
-knitr::include_graphics("images/Figure1B.png")
+#{r echo=FALSE, width="200px"}
+#knitr::include_graphics("images/Figure1B.png")
 ```
 
 
@@ -94,8 +95,6 @@ Shark Abundance Box plots (Figure 1E)
 fb$location <- gsub("[0-9]", "", as.character(f$location)) #removing numbers from location column in df "f"
 shark.abund.boxplot <- boxplot(fb$Shark.Abundance~fb$location)
 shark.abund.boxplot
-
-
 ```
 
 
@@ -249,8 +248,8 @@ Plotting densities of species richness and body size (shark abundance not includ
 Species Richness
 ```{r}
 #Species Richness
-fb.diff.manage.regimes <- fb %>% 
-  group_by(fb$location)
+#fb.diff.manage.regimes <- fb %>% 
+#  group_by(fb$location)
 
 
 
@@ -260,16 +259,16 @@ p + geom_density()
 
 
 
-fb <- f %>% mutate(Shark.Abundance = exp(TaSharks)-1)
-a <- ggplot(fb, aes(x = Shark.Abundance)) 
-a + geom_density() 
+#fb <- f %>% mutate(Shark.Abundance = exp(TaSharks)-1)
+#a <- ggplot(fb, aes(x = Shark.Abundance)) 
+#a + geom_density() 
 
-summary(fb$Shark.Abundance)
-summary(fb)  
+#summary(fb$Shark.Abundance)
+#summary(fb)  
   
 
-sr.density <- density(f$SR, from = 0) 
-sr.density.plot <- plot(sr.density) 
+#sr.density <- density(f$SR, from = 0) 
+#sr.density.plot <- plot(sr.density) 
 ```
 
 
