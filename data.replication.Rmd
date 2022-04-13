@@ -33,6 +33,8 @@ library(expm)
 library(e1071)
 library(pdp)
 library(knitr)
+library(dplyr)
+library(janitor)
 ```
 
 
@@ -56,15 +58,9 @@ sr.density <- density(f$SR, from = 0)
 sr.density.plot <- plot(sr.density)
 ```
 
-ASK ABOUT INSERTING SNAPSHOTS INTO RMD FILE!!
-```{r}
-#{r echo=FALSE, width="200px"}
-#knitr::include_graphics("images/Figure1B.png")
+```{r echo=FALSE, width="200px"}
+knitr::include_graphics("images/Figure1B.png")
 ```
-
-
-
-
 
 
 Body Size
@@ -73,6 +69,11 @@ Body Size
 body.size.density <- density(f$MaxL, from = 0)
 body.size.density.plot <- plot(body.size.density)
 ```
+
+```{r echo=FALSE, width="200px"}
+knitr::include_graphics("images/Figure1C.png")
+```
+
 
 Shark Abundance
 
@@ -88,7 +89,10 @@ a + geom_density()
 summary(fb$Shark.Abundance)
 summary(fb)
 ```
-  
+ 
+```{r echo=FALSE, width="200px"}
+knitr::include_graphics("images/Figure1D.png")
+``` 
 
 Shark Abundance Box plots (Figure 1E)
 ```{r}
@@ -97,6 +101,10 @@ shark.abund.boxplot <- boxplot(fb$Shark.Abundance~fb$location)
 shark.abund.boxplot
 ```
 
+
+```{r echo=FALSE, width="200px"}
+knitr::include_graphics("images/Figure1E.png")
+```
 
 Boosted Regression Trees for relative contribution of variables to Species Richness
 
@@ -112,6 +120,9 @@ boost.sp.rich.tree.100x <- gbm.more(boost.sp.rich.tree, 100, verbose = FALSE)
 summary(boost.sp.rich.tree.100x)
 ```
 
+```{r echo=FALSE, width="200px"}
+knitr::include_graphics("images/Figure3A.png")
+```
 
 Species Richness (using only environmental community attributes)
 ```{r}
@@ -161,6 +172,9 @@ plot.Dcoast_km <- autoplot(par.Dcoast_km, contour = TRUE)
 plot.Dcoast_km
 ```
 
+```{r echo=FALSE, width="200px"}
+knitr::include_graphics("images/Figure3B.png")
+```
 
 Partial Dependence Plot (Species richness ~ Distance to Coral Triangle)
 ```{r}
@@ -174,6 +188,11 @@ plot.DCoralT_km
 
 ```
 
+```{r echo=FALSE, width="200px"}
+knitr::include_graphics("images/Figure3C.png")
+```
+
+
 Boosted Regression Trees for relative contribution of variables to Body size
 
 
@@ -185,6 +204,10 @@ boost.body.size.tree <- gbm(formula = fb$MaxL~+fb$Depth+fb$Chla_median+fb$Chla_s
 
 boost.body.size.tree.100x <- gbm.more(boost.body.size.tree, 100, verbose = FALSE)
 summary(boost.body.size.tree.100x)
+```
+
+```{r echo=FALSE, width="200px"}
+knitr::include_graphics("images/Figure4A.png")
 ```
 
 Body size (using only environmental community attributes)
@@ -216,7 +239,6 @@ summary(boost.body.size.hum.press.tree.100x)
 
 Partial Dependence Plot (Body size ~ Depth)
 ```{r}
-
 y <- fb$MaxL
 model.svm <- svm(MaxL~., data = fb, probability = TRUE)
 pred <- predict(model.svm, fb, probability = TRUE)
@@ -227,9 +249,12 @@ plot.Depth
 ```
 
 
+```{r echo=FALSE, width="200px"}
+knitr::include_graphics("images/Figure4B.png")
+```
+
 Partial Dependence Plot (Body size ~ Distance to nearest market)
 ```{r}
-
 y <- fb$MaxL
 model.svm <- svm(MaxL~., data = fb, probability = TRUE)
 pred <- predict(model.svm, fb, probability = TRUE)
@@ -239,68 +264,48 @@ plot.Dist_nearest_market <- autoplot(par.Dist_nearest_market, contour = TRUE)
 plot.Dist_nearest_market
 ```
 
+```{r echo=FALSE, width="200px"}
+knitr::include_graphics("images/Figure4C.png")
+```
 
-
+Counting number of datapoints in each location
+```{r}
+table(fb['location'])
+```
 
 
 Plotting densities of species richness and body size (shark abundance not included)
 
 Species Richness
 ```{r}
-#Species Richness
-#fb.diff.manage.regimes <- fb %>% 
-#  group_by(fb$location)
+
+
+fb <- fb %>% 
+  mutate(unprotected )
+
+
+
+unprotected.locations <- c("GAM", "NEW", "PAL", "RAP", "RAPB", "TON")
+part.protected.location <- c("TIM", "DHI", "PC")
+no.take.mpas <- c("CH")
+
+protection.level <- c("unprotected.locations", "part.protected.location", "no.take.mpas")
+
+
+a <- ggplot(fb, aes(x = SR)) + geom_density_ridges(aes(fill = protection.level)) + scale_fill_manual(values = c("#00AFBB", "E7B800", "FC4E07"))
+a
 
 
 
 
-p <- ggplot(data = fb, aes(y = location, x = SR)) + facet_wrap(~location)
-p + geom_density()
 
-
-
-#fb <- f %>% mutate(Shark.Abundance = exp(TaSharks)-1)
-#a <- ggplot(fb, aes(x = Shark.Abundance)) 
-#a + geom_density() 
-
-#summary(fb$Shark.Abundance)
-#summary(fb)  
-  
-
-#sr.density <- density(f$SR, from = 0) 
-#sr.density.plot <- plot(sr.density) 
+sr.density <- density(f$SR, from = 0) 
+sr.density.plot <- plot(sr.density) %>%
+  group_by(protection.level)
 ```
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-```{r}
-
+```{r echo=FALSE, width="200px"}
+knitr::include_graphics("images/Figure6A.B.png")
 ```
 
 ```{r}
