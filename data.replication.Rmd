@@ -103,7 +103,7 @@ summary(fb)
 knitr::include_graphics("images/Figure1D.png")    #Embedding Figure 1D from paper to show side-by-side comparison between the paper's results and my re-analysis of the data
 ``` 
 
-Interestingly, 
+Interestingly, shark abundance was 
 
 
 
