@@ -18,7 +18,7 @@ Data Used:
 The primary data used for statistical and visual analyses in this study was raw vertebrate species richness, body size, shark abundance, and a wide variety of environmental, geomorphological, and human pressure predator community attributes at 1041 individual baited video deployments spread between the Eastern Indian and Western Pacific Oceans. 
 
 Analyses Conducted in paper:
-In this study, frequency distributions of species richness, body size, and shark abundance are plotted across all deployments, and shark abundances are plotted for each region in which baited remote underwater video systems were deployed. In addition, boosted regression trees are plotted to identify the relative contribution of variables contained within the three classes of predator community attributes to species richness, body size, and shark abundance across all 1041 deployments. In addition, species richness was assessed based on both distance to coast and distance to the Coral Triangle, body size was assessed based on both depth as well as distance to the nearest market, and shark abundance was assessed based on both distance to the nearest market and depth. Finally, the frequency distributions of predator attributes, specifically species richness, body size, and human pressure, were plotted with respect to three different spatial management regimes: unprotected, partially protected, and large, no-take marine protected areas. 
+In this study, frequency distributions of species richness, body size, and shark abundance are plotted across all deployments, and shark abundances are plotted for each region in which baited remote underwater video systems were deployed. In addition, boosted regression trees are plotted to identify the relative contribution of variables contained within the three classes of predator community attributes to species richness, body size, and shark abundance across all 1041 deployments. In addition, species richness was assessed based on both distance to coast and distance to the Coral Triangle, body size was assessed based on both depth as well as distance to the nearest market, and shark abundance was assessed based on both distance to the nearest market and depth. Finally, the frequency distributions of predator attributes, specifically species richness, body size, and shark abundance, were plotted with respect to three different spatial management regimes: unprotected, partially protected, and large, no-take marine protected areas. 
 
 Conclusions: 
 All three attributes (species richness, mean maximum body size, and shark abundance) were primarily driven by geomorphology and environmental conditions, while human pressures, specifically distance to human markets, influenced body size and shark abundance, but not species richness. Refuges were identified > 1250 km from human markets and were identified as remote and shallow seabeds (e.g. seamounts, submerged banks, and reefs). Many of the refuges for both large-bodied predators and hotspots of shark abundance are currently under-represented within no-take marine protected areas (MPAs), and population recovery is unlikely to occur without strategic implementation of large, no-take MPAs that include these remote refuges as well as coastal areas. 
@@ -91,7 +91,7 @@ Overall, the body size graph in the paper and the one generated in re-analysis w
 Shark Abundance
 ```{r}
 #Shark Abundance
-fb <- f %>% mutate(Shark.Abundance = exp(TaSharks)-1)  #shark abundance was recorded in raw data as TaSharks (log[SumMaxN +1]), so I took the exponent of TaSharks and subtracted 1 for each of the 1041 deployments 
+fb <- f %>% mutate(Shark.Abundance = exp(TaSharks)-1)  #shark abundance was recorded in raw data as TaSharks (log[SumMaxN +1]), so I took the exponent of TaSharks and subtracted 1 for each of the 1041 deployments (upon recommendation from the author after correspondence)
 a <- ggplot(fb, aes(x = Shark.Abundance))              #plotting transformed shark abundance data using ggplot and taking frequency distribution using geom_density() function in ggplot2
 a + geom_density() 
 
@@ -103,7 +103,7 @@ summary(fb)
 knitr::include_graphics("images/Figure1D.png")    #Embedding Figure 1D from paper to show side-by-side comparison between the paper's results and my re-analysis of the data
 ``` 
 
-Interestingly, shark abundance was 
+Interestingly, the shark abundance plot generated in re-analysis of the transformed TaShark data is starkly different from the same shark abundance frequency distribution plot in the publication, both with respect to the shape of the plot as well as the scale of the plot. This may be either due to a faulty data transformation error in data re-analysis, or that TaSharks may be the wrong variable used to plot shark abundance. 
 
 
 
@@ -111,46 +111,58 @@ Then, shark abundance was plotted for each region in which baited remote underwa
 
 Shark Abundance Box plots (Figure 1E)
 ```{r}
-fb$location <- gsub("[0-9]", "", as.character(f$location)) #removing numbers from location column in df "f" using function gsub
+fb$location <- gsub("[0-9]", "", as.character(f$location)) #removing numbers from location column in dataframe "f" using function gsub
 shark.abund.boxplot <- boxplot(fb$Shark.Abundance~fb$location) #plotting shark abundance with respect to location (each region in which baited remote underwater video systems were deployed)
 shark.abund.boxplot
 ```
+
 
 
 ```{r echo=FALSE, width="200px"}
 knitr::include_graphics("images/Figure1E.png")      #Embedding Figure 1E from paper to show side-by-side comparison between the paper's results and my re-analysis of the data
 ```
 
+Similar to Figure 1D, Figure 1E in the re-analysis is starkly different than the Figure 1E plot in the publication. In the raw dataset (/data/raw.sr.bodysize.sharkabundance.xlsx), there are 1041 datapoints (individual deployments), the exact same number  to that reported in the publication, however, there are 11 different locations listed in the raw data Excel sheet yet only 9 locations in the publication. Upon correspondence with the lead author, there were likely typos for the location name of some deployments, however, it was still difficult to assign mismatches to their proper locations since most locations had roughly, yet not the exact same number of deployments reported for both the publication and raw Excel sheet. Therefore, mismatches were left as such. Interestingly, despite the mismatches in number of deployments across sites, the scale of the plots (on the y-axis) are massively different and are much higher for the re-analyzed data, which are likely due to errors in data transformation or usage of the wrong variable (TaSharks) for plotting. 
+Note:
+Due to the difficulty of both data transformation and plotting of shark abundance, there were no further shark abundance analyses in re-analysis.  
 
 
-Now, boosted regression trees are used to identify the relative contribution of multiple geomorphological, environmental, and human pressure variables to species richness and body size. Shark abundances 
 
 
 
-Boosted Regression Trees for relative contribution of variables to Species Richness
+Then, boosted regression trees (BRTs) are used to identify the relative contribution of multiple geomorphological, environmental, and human pressure variables to species richness and body size. Shark abundances 
 
 Note: very odd how they give you the results in both figure and chart format but don't give background on how they went about narrowing down the number of community attributes used for the regression trees, or how they defined each variable as either a environmental, geomorphological, or human pressure predatory community attribute
+
+
+Boosted Regression Trees (BRTs) for relative contribution of variables to Species Richness
+
 
 Species Richness (all variables)
 ```{r}
 #use species richness as the response variable, including all variables
 boost.sp.rich.tree <- gbm(formula = fb$SR~+fb$Depth+fb$Chla_median+fb$Chla_sd+fb$SST_median+fb$SST_sd
-                          +fb$pop_50km+fb$pop_500km+fb$Dist_nearest_pop+fb$Dist_nearest_market+fb$HDI+fb$Dcoast_km+fb$DCoralT_km+fb$DistSeamount_km+fb$GDP+fb$Dist_SMT1500+fb$FishingEffort01+fb$FishingEffort05, data = fb, n.trees = 100000)
+                          +fb$pop_50km+fb$pop_500km+fb$Dist_nearest_pop+fb$Dist_nearest_market+fb$HDI+fb$Dcoast_km+fb$DCoralT_km+fb$DistSeamount_km+fb$GDP+fb$Dist_SMT1500+fb$FishingEffort01+fb$FishingEffort05, data = fb, n.trees = 100000)  #using all  predator community attributes catergorized as either 1) geomorphology, 2) environmental conditions, or 3) human pressure to identify which had the highest relative influence on species richness using 10000 decision trees using the gbm package 
 
-boost.sp.rich.tree.100x <- gbm.more(boost.sp.rich.tree, 100, verbose = FALSE)
-summary(boost.sp.rich.tree.100x)
+boost.sp.rich.tree.100x <- gbm.more(boost.sp.rich.tree, 100, verbose = FALSE)  #adding additional 100 boosting iterations to the boosted regression tree
+summary(boost.sp.rich.tree.100x)  #summary of the results
 ```
 
 ```{r echo=FALSE, width="200px"}
-knitr::include_graphics("images/Figure3A.png")
+knitr::include_graphics("images/Figure3A.png")     #Embedding Figure 3A from paper to show side-by-side comparison between the paper's results and my re-analysis of the data
 ```
+The plot from Figure 3A in the publication is mostly different from the figure produced from re-analysis of the raw data. It was not clear if the authors had specific criteria for selecting contributing variables since only 6 variables were plotted as having influence on species richness, yet there were 17 variables from each of the 1041 deployments in the raw data set. It was also unclear whether any of the other variables underwent data transformation which I did not account for, which would likely influence these variable's contribution to species richness. It was decided that three additional BRTs were going to be employed, each one assessing the effect of only one of the three categories of predator community attributes on species richness. 
+
+
+
+
 
 Species Richness (using only environmental community attributes)
 ```{r}
-boost.sp.rich.enviro.tree <- gbm(formula = SR~DCoralT_km+Chla_median+Chla_sd+SST_median+SST_sd, data = fb, n.trees = 100000)
+boost.sp.rich.enviro.tree <- gbm(formula = SR~DCoralT_km+Chla_median+Chla_sd+SST_median+SST_sd, data = fb, n.trees = 100000)  #using all  predator community attributes catergorized as "environmental conditions" to identify which had the highest relative influence on species richness using 10000 decision trees using the gbm package 
 
-boost.sp.rich.enviro.tree.100x <- gbm.more(boost.sp.rich.enviro.tree, 100, verbose = FALSE)
-summary(boost.sp.rich.enviro.tree.100x)
+boost.sp.rich.enviro.tree.100x <- gbm.more(boost.sp.rich.enviro.tree, 100, verbose = FALSE) #adding additional 100 boosting iterations to the boosted regression tree
+summary(boost.sp.rich.enviro.tree.100x)   #summary of the results
 ```
 
 Species Richness (using only geomorphological community attributes)
@@ -181,11 +193,14 @@ summary(boost.sp.rich.combo.tree.100x)
 
 
 
+Then, partial dependence plots were used to identify the relationship between distance to the coast and species richness, as well as the distance to the Coral Triangle and species. richness. 
+
+
 Partial Dependence Plot (Species richness ~ Distance to coast)
 ```{r}
 
-y <- fb$SR
-model.svm <- svm(SR~., data = fb, probability = TRUE)
+y <- fb$SR  #variable y equals species richness
+model.svm <- svm(SR~., data = fb, probability = TRUE)  #model 
 pred <- predict(model.svm, fb, probability = TRUE)
 table(y, pred)
 par.Dcoast_km <- partial(model.svm, pred.var = c("Dcoast_km"), chull = TRUE)
