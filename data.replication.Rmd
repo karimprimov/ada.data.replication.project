@@ -269,6 +269,10 @@ boost.body.size.hum.press.tree <- gbm(formula = MaxL~pop_50km+pop_500km+Dist_nea
 
 boost.body.size.hum.press.tree.100x <- gbm.more(boost.body.size.hum.press.tree, 100, verbose = FALSE)
 summary(boost.body.size.hum.press.tree.100x)
+
+
+plot.gbm(boost.body.size.hum.press.tree,i.var=4, continuous.resolution = 30)
+
 ```
 
 
@@ -282,6 +286,8 @@ table(y, pred)
 par.Depth <- partial(model.svm, pred.var = c("Depth"), chull = TRUE)
 plot.Depth <- autoplot(par.Depth, contour = TRUE)
 plot.Depth
+
+plot.gbm(boost.body.size.geomorph.tree,i.var=1, continuous.resolution = 10)
 ```
 
 
@@ -298,6 +304,8 @@ table(y, pred)
 par.Dist_nearest_market <- partial(model.svm, pred.var = c("Dist_nearest_market"), chull = TRUE)
 plot.Dist_nearest_market <- autoplot(par.Dist_nearest_market, contour = TRUE)
 plot.Dist_nearest_market
+
+ggplot(data=fb, aes(x=Dist_nearest_market, y = MaxL)) + geom_point()
 ```
 
 ```{r echo=FALSE, width="200px"}
@@ -319,7 +327,7 @@ Species Richness
 fb <- fb %>% 
   mutate(unprotected )
 
-
+#mutate new column called protection level if location =, then facet_wrap density by proection level 
 
 unprotected.locations <- c("GAM", "NEW", "PAL", "RAP", "RAPB", "TON")
 part.protected.location <- c("TIM", "DHI", "PC")
