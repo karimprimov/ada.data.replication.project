@@ -12,15 +12,16 @@ https://journals.plos.org/plosbiology/article?id=10.1371/journal.pbio.3000366#pb
 
 
 Introduction: 
-With technological advancements taking place in the fisheries industry, there has been unprecedented access to populations of marine predators including sharks, tuna, and billfishes, among others. In order to protect and preserve populations of marine predators, it is necessary to identify critical habitats of these marine predators across shallow coral reefs and in the deep ocean. 1041 mid-water baited videos were used to survey sharks and other pelagic predators. Three predator community attributes were modeled as a function of either geomorphology, environmental conditions, and human pressures: species richness, mean maximum body size, and shark abundance. All three attributed were primarily driven by geomorphology and environmental conditions, while human pressures, specifically distance to human markets, influenced body size and shark abundance, but not species richness. Refuges were identified > 1250 km from human markets and were identified as remote and shallow seabeds (e.g. seamounts, submerged banks, and reefs). Many of the refuges for both large-bodied predators and hotspots of shark abundance are currently under-represented within no-take marine protected areas (MPAs), and population recovery is unlikely to occur without strategic implementation of large, no-take MPAs that include these remote refuges as well as coastal areas. 
+With technological advancements taking place in the fisheries industry, there has been unprecedented access to populations of marine predators including sharks, tuna, and billfishes, among others. In order to protect and preserve populations of marine predators, it is necessary to identify critical habitats of these marine predators across shallow coral reefs and in the deep ocean. 1041 mid-water baited videos were used to survey sharks and other pelagic predators across the Indo-Pacific. Three predator community attributes were modeled as a function of either geomorphology, environmental conditions, and human pressures: species richness, mean maximum body size, and shark abundance. 
 
 Data Used: 
 The primary data used for statistical and visual analyses in this study was raw vertebrate species richness, body size, shark abundance, and a wide variety of environmental, geomorphological, and human pressure predator community attributes at 1041 individual baited video deployments spread between the Eastern Indian and Western Pacific Oceans. 
 
-Analyses Conducted:
-In this study, frequency distributions of species richness, body size, and shark abundance are plotted across all deployments. In addition, boosted regression trees are plotted to identify the relative contribution of variables contained within the three classes of predator community attributes to species richness, body size, and shark abundance across all 1041 deployments. In addition, species richness was assessed based on both distance to coast and 
+Analyses Conducted in paper:
+In this study, frequency distributions of species richness, body size, and shark abundance are plotted across all deployments, and shark abundances are plotted for each region in which baited remote underwater video systems were deployed. In addition, boosted regression trees are plotted to identify the relative contribution of variables contained within the three classes of predator community attributes to species richness, body size, and shark abundance across all 1041 deployments. In addition, species richness was assessed based on both distance to coast and distance to the Coral Triangle, body size was assessed based on both depth as well as distance to the nearest market, and shark abundance was assessed based on both distance to the nearest market and depth. Finally, the frequency distributions of predator attributes, specifically species richness, body size, and human pressure, were plotted with respect to three different spatial management regimes: unprotected, partially protected, and large, no-take marine protected areas. 
 
-
+Conclusions: 
+All three attributes (species richness, mean maximum body size, and shark abundance) were primarily driven by geomorphology and environmental conditions, while human pressures, specifically distance to human markets, influenced body size and shark abundance, but not species richness. Refuges were identified > 1250 km from human markets and were identified as remote and shallow seabeds (e.g. seamounts, submerged banks, and reefs). Many of the refuges for both large-bodied predators and hotspots of shark abundance are currently under-represented within no-take marine protected areas (MPAs), and population recovery is unlikely to occur without strategic implementation of large, no-take MPAs that include these remote refuges as well as coastal areas. 
 
 Loading libraries
 ```{r}
@@ -38,73 +39,93 @@ library(janitor)
 ```
 
 
-Importing data
+Importing data 
 ```{r}
 library(readxl)
 f <- read_excel("data/raw.sr.bodysize.sharkabundance.xlsx")
 colnames(f)[1] <- "location"
 ```
 
+
+Line of code telling {knitr} where to find any images to include in ".html" output 
 ```{r}
 knitr::opts_chunk$set(fig.path = "images/")
 ```
 
-Plotting densities of species richness, body size, and shark abundance:
 
-Species Richness
+First would like to plot species richness, mean maximum body size, and shark abundance across all locations:
+
+Plotting frequency distributions of species richness, body size, and shark abundance:
+
+
+Species Richness (Figure 1B)
 ```{r}
 #Species Richness
-sr.density <- density(f$SR, from = 0)
-sr.density.plot <- plot(sr.density)
+sr.density <- density(f$SR, from = 0) #obtaining frequency distribution of species richness using the density function
+sr.density.plot <- plot(sr.density)   #plotting the frequency distribution of species richness 
 ```
 
 ```{r echo=FALSE, width="200px"}
-knitr::include_graphics("images/Figure1B.png")
+knitr::include_graphics("images/Figure1B.png") #Embedding Figure 1B from paper to show side-by-side comparison between the paper's results and my re-analysis of the data
 ```
+
+Overall, the species richness graph in the paper and the one generated in re-analysis were fairly similar to one another. 
+
 
 
 Body Size
 ```{r}
 #Body Size
-body.size.density <- density(f$MaxL, from = 0)
-body.size.density.plot <- plot(body.size.density)
+body.size.density <- density(f$MaxL, from = 0)     #obtaining frequency distribution of body size using the density function
+body.size.density.plot <- plot(body.size.density)  #plotting the frequency distribution of body size 
 ```
 
 ```{r echo=FALSE, width="200px"}
-knitr::include_graphics("images/Figure1C.png")
+knitr::include_graphics("images/Figure1C.png")   #Embedding Figure 1C from paper to show side-by-side comparison between the paper's results and my re-analysis of the data
 ```
+
+Overall, the body size graph in the paper and the one generated in re-analysis were fairly similar to one another. 
+
 
 
 Shark Abundance
-
-I cannot explain how the difference in what I get and what the publication presents for sharks abundance (not the same data used for the publication figures)
 ```{r}
 #Shark Abundance
-#shark.abund.bysite <- f %>% group_by(f$location) 
-#decomposing TaSharks by doing ((e^TaSharks) -1)
-fb <- f %>% mutate(Shark.Abundance = exp(TaSharks)-1)
-a <- ggplot(fb, aes(x = Shark.Abundance)) 
+fb <- f %>% mutate(Shark.Abundance = exp(TaSharks)-1)  #shark abundance was recorded in raw data as TaSharks (log[SumMaxN +1]), so I took the exponent of TaSharks and subtracted 1 for each of the 1041 deployments 
+a <- ggplot(fb, aes(x = Shark.Abundance))              #plotting transformed shark abundance data using ggplot and taking frequency distribution using geom_density() function in ggplot2
 a + geom_density() 
 
-summary(fb$Shark.Abundance)
+summary(fb$Shark.Abundance)                            #taking summary statistics of transformed shark abundance data 
 summary(fb)
 ```
  
 ```{r echo=FALSE, width="200px"}
-knitr::include_graphics("images/Figure1D.png")
+knitr::include_graphics("images/Figure1D.png")    #Embedding Figure 1D from paper to show side-by-side comparison between the paper's results and my re-analysis of the data
 ``` 
+
+Interestingly, 
+
+
+
+Then, shark abundance was plotted for each region in which baited remote underwater video systems were deployed.
 
 Shark Abundance Box plots (Figure 1E)
 ```{r}
-fb$location <- gsub("[0-9]", "", as.character(f$location)) #removing numbers from location column in df "f"
-shark.abund.boxplot <- boxplot(fb$Shark.Abundance~fb$location)
+fb$location <- gsub("[0-9]", "", as.character(f$location)) #removing numbers from location column in df "f" using function gsub
+shark.abund.boxplot <- boxplot(fb$Shark.Abundance~fb$location) #plotting shark abundance with respect to location (each region in which baited remote underwater video systems were deployed)
 shark.abund.boxplot
 ```
 
 
 ```{r echo=FALSE, width="200px"}
-knitr::include_graphics("images/Figure1E.png")
+knitr::include_graphics("images/Figure1E.png")      #Embedding Figure 1E from paper to show side-by-side comparison between the paper's results and my re-analysis of the data
 ```
+
+
+
+Now, boosted regression trees are used to identify the relative contribution of multiple geomorphological, environmental, and human pressure variables to species richness and body size. Shark abundances 
+
+
 
 Boosted Regression Trees for relative contribution of variables to Species Richness
 
