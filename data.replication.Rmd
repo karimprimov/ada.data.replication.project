@@ -326,31 +326,33 @@ The BRT in re-analysis using only variables found in Figure 3A in the publicatio
 
 
 
-Then, partial dependence plots were used to identify the relationship between distance to the coast and species richness, as well as the distance to the Coral Triangle and species, both with the removal of the influence of other contributing variables. Data for the partial dependence plots were used from the BRT "boost.sp.rich.high.cont.tree", the BRT with reduced number of variables in an attempt to replicate Figure 3A in the publication. 
+Then, partial dependence plots were used to identify the relationship between distance to the coast and species richness, as well as the distance to the Coral Triangle and species richness, both with the removal of the influence of other contributing variables. Data for the partial dependence plots were used from the BRT "boost.sp.rich.high.cont.tree", the BRT with reduced number of variables in an attempt to replicate Figure 3A in the publication. 
 
 
-Partial Dependence Plot (Species richness ~ Distance to coast)
+Partial Dependence Plot (Figure 3B) (Species richness ~ Distance to coast)
 ```{r}
-plot.gbm(boost.sp.rich.tree,i.var=11, continuous.resolution = 12)
+plot.gbm(boost.sp.rich.high.cont.tree,i.var=1, continuous.resolution = 12)    
 ```
 
 ```{r echo=FALSE, width="200px"}
-knitr::include_graphics("images/Figure3B.png")
+knitr::include_graphics("images/Figure3B.png")            #Embedding Figure 3B from paper to show side-by-side comparison between the paper's results and my re-analysis of the data
 ```
 
-Overall, the partial dependence plot for identifying the relationship between distance to the coast and species richness were similar in the fact that there is an overall negative trend between species richness and distance to coast, however, there appears to be a plateau from 0-~275 km in the re-analyzed plot. It is unclear exactly why there's a difference between the results in these two figures since re-analyzed data was un-transformed and plotted, however, the usage of the re-analyzed boosted regression tree (boost.sp.rich.tree), whose result is different from that in the publication, may contribute to the discrepancy between figure outcomes. 
+Overall, the partial dependence plot for identifying the relationship between distance to the coast and species richness were similar in the fact that there is an overall negative trend between species richness and distance to coast, however, there appears to be a plateau from 0-~275 km in the re-analyzed plot. It is unclear exactly why there's a difference between the results in these two figures since re-analyzed data was un-transformed and plotted. 
 
 
 
 Partial Dependence Plot (Species richness ~ Distance to Coral Triangle)
 ```{r}
-plot.gbm(boost.sp.rich.tree,i.var=12, continuous.resolution = 6)
+plot.gbm(boost.sp.rich.high.cont.tree,i.var=2, continuous.resolution = 6)
 ```
 
 ```{r echo=FALSE, width="200px"}
-knitr::include_graphics("images/Figure3C.png")
+knitr::include_graphics("images/Figure3C.png")                #Embedding Figure 3C from paper to show side-by-side comparison between the paper's results and my re-analysis of the data
 ```
-Overall, the partial dependence plot for identifying the relationship between distance to the Coral Triangle and species richness were similar in the fact that there is an overall negative trend between species richness and distance to coast, however, there appears to be a plateau from 0-~5500 km in the re-analyzed plot. It is unclear exactly why there's a difference between the results in these two figures since re-analyzed data was un-transformed and plotted, however, the usage of the re-analyzed boosted regression tree (boost.sp.rich.tree), whose result is different from that in the publication, may contribute to the discrepancy between figure outcomes. 
+Overall, the partial dependence plot for identifying the relationship between distance to the Coral Triangle and species richness were similar in the fact that there is an overall negative trend between species richness and distance to coast, however, there appears to be a plateau from 0-~5500 km in the re-analyzed plot. It is unclear exactly why there's a difference between the results in these two figures since re-analyzed data was un-transformed and plotted. 
+
+
 
 
 
@@ -360,22 +362,20 @@ Boosted Regression Trees for relative contribution of variables to Body size
 
 
 
-
-
-Body Size (all variables)
+Body Size (Figure 4A) (includes all potential variables that may contribute to species richness across sites)
 ```{r}
 #use species richness as the response variable, including all variables
 boost.body.size.tree <- gbm(formula = MaxL~+Depth+Chla_median+Chla_sd+SST_median+SST_sd
-                          +pop_50km+pop_500km+Dist_nearest_pop+Dist_nearest_market+HDI+Dcoast_km+DCoralT_km+DistSeamount_km+GDP+Dist_SMT1500+FishingEffort01+FishingEffort05, data = fb, n.trees = 100000)
-summary(boost.body.size.tree)#using all  predator community attributes catergorized as either 1) geomorphology, 2) environmental conditions, or 3) human pressure to identify which had the highest relative influence on body size using 10000 decision trees using the gbm package 
+                          +pop_50km+pop_500km+Dist_nearest_pop+Dist_nearest_market+HDI+Dcoast_km+DCoralT_km+DistSeamount_km+GDP+Dist_SMT1500+FishingEffort01+FishingEffort05, data = fb, n.trees = 50, shrinkage = 0.01, bag.fraction = 0.5, distribution = "gaussian")
+summary(boost.body.size.tree)#using all  predator community attributes catergorized as either 1) geomorphology, 2) environmental conditions, or 3) human pressure to identify which had the highest relative influence on body size using 10000 decision trees using the gbm package and parameters specified in "brt.parameters.models.specific.predator.attributes.csv"
 ```
 
 ```{r echo=FALSE, width="200px"}
-knitr::include_graphics("images/Figure4A.png")
+knitr::include_graphics("images/Figure4A.png")                   #Embedding Figure 4A from paper to show side-by-side comparison between the paper's results and my re-analysis of the data
 ```
 
 ```{r}
-boost.body.size.high.cont.tree <- gbm(formula = MaxL~+Depth+DistSeamount_km+SST_median+Dist_nearest_market+Dist_nearest_pop, data = fb, n.trees = 100000)
+boost.body.size.high.cont.tree <- gbm(formula = MaxL~+Depth+DistSeamount_km+SST_median+Dist_nearest_market+Dist_nearest_pop, data = fb, n.trees = 50, shrinkage = 0.01, bag.fraction = 0.5, distribution = "gaussian")
                             
                             
                             
@@ -392,12 +392,12 @@ plot.gbm(boost.body.size.high.cont.tree,i.var=1, continuous.resolution = 5)
 
 
 ```{r echo=FALSE, width="200px"}
-knitr::include_graphics("images/Figure4B.png")
+knitr::include_graphics("images/Figure4B.png")#Embedding Figure 4B from paper to show side-by-side comparison between the paper's results and my re-analysis of the data
 ```
 
 Partial Dependence Plot (Body size ~ Distance to nearest market)
 ```{r}
-plot.gbm(boost.body.size.high.cont.tree,i.var=4, continuous.resolution = 6)
+plot.gbm(boost.body.size.high.cont.tree,i.var=4, continuous.resolution = 10)
 ```
 
 ```{r echo=FALSE, width="200px"}
