@@ -29,6 +29,7 @@ library(readr)
 library(gbm)
 library(tidyverse)
 library(ggplot2)
+library(ggridges)
 library(tm)
 library(expm)
 library(e1071)
@@ -39,7 +40,6 @@ library(janitor)
 ```
 
 Function gbm.plot
-
 ```{r}
 gbm.plot <-
   function(gbm.object,                # a gbm object - could be one from gbm.step
@@ -296,9 +296,7 @@ Species Richness (all variables)
 #use species richness as the response variable, including all variables
 boost.sp.rich.tree <- gbm(formula = fb$SR~+fb$Depth+fb$Chla_median+fb$Chla_sd+fb$SST_median+fb$SST_sd
                           +fb$pop_50km+fb$pop_500km+fb$Dist_nearest_pop+fb$Dist_nearest_market+fb$HDI+fb$Dcoast_km+fb$DCoralT_km+fb$DistSeamount_km+fb$GDP+fb$Dist_SMT1500+fb$FishingEffort01+fb$FishingEffort05, data = fb, n.trees = 100000)  #using all  predator community attributes catergorized as either 1) geomorphology, 2) environmental conditions, or 3) human pressure to identify which had the highest relative influence on species richness using 10000 decision trees using the gbm package 
-
-boost.sp.rich.tree.100x <- gbm.more(boost.sp.rich.tree, 100, verbose = FALSE)  #adding additional 100 boosting iterations to the boosted regression tree
-summary(boost.sp.rich.tree.100x)  #summary of the results
+summary(boost.sp.rich.tree)  #summary of the results
 ```
 
 ```{r echo=FALSE, width="200px"}
@@ -309,77 +307,52 @@ The plot from Figure 3A in the publication is mostly different from the figure p
 
 
 
-
-Species Richness (using only environmental community attributes)
-```{r}
-boost.sp.rich.enviro.tree <- gbm(formula = SR~DCoralT_km+Chla_median+Chla_sd+SST_median+SST_sd, data = fb, n.trees = 100000)  #using all  predator community attributes catergorized as "environmental conditions" to identify which had the highest relative influence on species richness using 10000 decision trees using the gbm package 
-
-boost.sp.rich.enviro.tree.100x <- gbm.more(boost.sp.rich.enviro.tree, 100, verbose = FALSE) #adding additional 100 boosting iterations to the boosted regression tree
-summary(boost.sp.rich.enviro.tree.100x)   #summary of the results
-```
-
-Species Richness (using only geomorphological community attributes)
-```{r}
-boost.sp.rich.geomorph.tree <- gbm(formula = SR~Depth+Dcoast_km+DistSeamount_km+Dist_SMT1500, data = fb, n.trees = 100000)
-boost.sp.rich.geomorph.tree.100x <- gbm.more(boost.sp.rich.geomorph.tree, 100, verbose = FALSE)
-summary(boost.sp.rich.geomorph.tree.100x)
-```
-
-Species Richness (using only human pressure community attributes)
+Species Richness (using variables found as having highest relative contribution in Figure3A in publication)
 
 ```{r}
-boost.sp.rich.hum.press.tree <- gbm(formula = fb$SR~pop_50km+pop_500km+Dist_nearest_pop+Dist_nearest_market+HDI+GDP+FishingEffort01+FishingEffort05, data = fb, n.trees = 100000)
+#use species richness as the response variable, including all variables
+boost.sp.rich.high.cont.tree <- gbm(formula = SR~+Dcoast_km+DCoralT_km+Depth+SST_median+SST_sd+DistSeamount_km, data = fb, n.trees = 100000)
+                            
+                            
+                            
+                            
+                #using all  predator community attributes catergorized as either 1) geomorphology, 2) environmental conditions, or 3) human pressure to identify which had the highest relative influence on species richness using 10000 decision trees using the gbm package 
 
-boost.sp.rich.hum.press.tree.100x <- gbm.more(boost.sp.rich.hum.press.tree, 100, verbose = FALSE)
-summary(boost.sp.rich.hum.press.tree.100x)
+summary(boost.sp.rich.high.cont.tree)  #summary of the results
 ```
-
-Running BRT using results from [Species Richness(using only environmental community attributes) + Species Richness(using only geomorphological community attributes) + Species Richness(using only human pressure community attributes)]
-Only including values with relative contribution of >=13%
-```{r}
-boost.sp.rich.combo.tree <- gbm(formula = fb$SR~SST_sd+DCoralT_km+SST_median+Dcoast_km+Depth+DistSeamount_km+Dist_SMT1500+Dist_nearest_pop+Dist_nearest_market+FishingEffort01, data = fb, n.trees = 100000)
-
-boost.sp.rich.combo.tree.100x <- gbm.more(boost.sp.rich.combo.tree, 100, verbose = FALSE)
-summary(boost.sp.rich.combo.tree.100x)
-```
+A new BRT was run to attempt to replicate the exact same figure found in the publication (Figure 3A), however, the BRT in re-analysis using only variables found in Figure 3A in the publication was starkly different than Figure 3A in the publication. It is unclear why there is such a stark difference in plot outcome, both with respect to variable contribution as well as scale of contribution, however, it may be due to the fact that variables included in Figure 3A were transformed before usage in BRT analysis. 
 
 
 
 
-Then, partial dependence plots were used to identify the relationship between distance to the coast and species richness, as well as the distance to the Coral Triangle and species. richness. 
+Then, partial dependence plots were used to identify the relationship between distance to the coast and species richness, as well as the distance to the Coral Triangle and species, both with the removal of the influence of other contributing variables. Data for the partial dependence plots were used from the "boost.sp.rich.high.cont.tree", the BRT with reduced number of variables in an attempt to replicate Figure 3A in the publication. 
 
 
 Partial Dependence Plot (Species richness ~ Distance to coast)
 ```{r}
-
-y <- fb$SR  #variable y equals species richness
-model.svm <- svm(SR~., data = fb, probability = TRUE)  #model 
-pred <- predict(model.svm, fb, probability = TRUE)
-table(y, pred)
-par.Dcoast_km <- partial(model.svm, pred.var = c("Dcoast_km"), chull = TRUE)
-plot.Dcoast_km <- autoplot(par.Dcoast_km, contour = TRUE)
-plot.Dcoast_km
+plot.gbm(boost.sp.rich.high.cont.tree,i.var=1, continuous.resolution = 12)
 ```
 
 ```{r echo=FALSE, width="200px"}
 knitr::include_graphics("images/Figure3B.png")
 ```
 
+Overall, the partial dependence plot for identify the relationship between distance to the coast and species richness were similar in the fact that there is an overall negative trend between species richness and distance to coast, however, there appears to be an initial increase in the re-analyzed plot from 0- ~50 km from the coast, then a negative trend from 50- ~230 km, then an increase from ~230 - ~260 km offshore, then a decrease to ~300 km, then a plateau until ~330 km offshore. On the contrary, there's a gradual decline in the published figure from 0 - ~230, then a steep decline from ~230 - ~330 km offshore. It is unclear exactly why there's such a difference between the results in these two figures since re-analyzed data was un-transformed and plotted, however, the usage of the re-analyzed boosted regression tree, whose result is different from that in the publication, may contribute to the discrepancy between figure outcomes. 
+
+
+
 Partial Dependence Plot (Species richness ~ Distance to Coral Triangle)
 ```{r}
-y <- fb$SR
-model.svm2 <- svm(SR~., data = fb, probability = TRUE)
-pred <- predict(model.svm2, fb, probability = TRUE)
-table(y, pred)
-par.DCoralT_km <- partial(model.svm2, pred.var = c("DCoralT_km"), chull = TRUE)
-plot.DCoralT_km <- autoplot(par.DCoralT_km, contour = TRUE)
-plot.DCoralT_km
-
+plot.gbm(boost.sp.rich.high.cont.tree,i.var=2, continuous.resolution = 6)
 ```
 
 ```{r echo=FALSE, width="200px"}
 knitr::include_graphics("images/Figure3C.png")
 ```
+
+
+
+
 
 
 Boosted Regression Trees for relative contribution of variables to Body size
@@ -388,59 +361,29 @@ Boosted Regression Trees for relative contribution of variables to Body size
 Body Size (all variables)
 ```{r}
 #use species richness as the response variable, including all variables
-boost.body.size.tree <- gbm(formula = fb$MaxL~+fb$Depth+fb$Chla_median+fb$Chla_sd+fb$SST_median+fb$SST_sd
-                          +fb$pop_50km+fb$pop_500km+fb$Dist_nearest_pop+fb$Dist_nearest_market+fb$HDI+fb$Dcoast_km+fb$DCoralT_km+fb$DistSeamount_km+fb$GDP+fb$Dist_SMT1500+fb$FishingEffort01+fb$FishingEffort05, data = fb, n.trees = 100000)
-
-boost.body.size.tree.100x <- gbm.more(boost.body.size.tree, 100, verbose = FALSE)
-summary(boost.body.size.tree.100x)
+boost.body.size.tree <- gbm(formula = MaxL~+Depth+Chla_median+Chla_sd+SST_median+SST_sd
+                          +pop_50km+pop_500km+Dist_nearest_pop+Dist_nearest_market+HDI+Dcoast_km+DCoralT_km+DistSeamount_km+GDP+Dist_SMT1500+FishingEffort01+FishingEffort05, data = fb, n.trees = 100000)
+summary(boost.body.size.tree)
 ```
 
 ```{r echo=FALSE, width="200px"}
 knitr::include_graphics("images/Figure4A.png")
 ```
 
-Body size (using only environmental community attributes)
 ```{r}
-boost.body.size.enviro.tree <- gbm(formula = MaxL~DCoralT_km+Chla_median+Chla_sd+SST_median+SST_sd, data = fb, n.trees = 100000)
+boost.body.size.high.cont.tree <- gbm(formula = MaxL~+Depth+DistSeamount_km+SST_median+Dist_nearest_market+Dist_nearest_pop, data = fb, n.trees = 100000)
+                            
+                            
+                            
+                            
+                #using all  predator community attributes catergorized as either 1) geomorphology, 2) environmental conditions, or 3) human pressure to identify which had the highest relative influence on species richness using 10000 decision trees using the gbm package 
 
-boost.body.size.enviro.tree.100x <- gbm.more(boost.body.size.enviro.tree, 100, verbose = FALSE)
-summary(boost.body.size.enviro.tree.100x)
+summary(boost.body.size.high.cont.tree)  #summary of the results
 ```
-
-
-Body Size (using only geomorphological community attributes)
-```{r}
-boost.body.size.geomorph.tree <- gbm(formula = MaxL~Depth+Dcoast_km+DistSeamount_km+Dist_SMT1500, data = fb, n.trees = 100000)
-boost.body.size.geomorph.tree.100x <- gbm.more(boost.body.size.geomorph.tree, 100, verbose = FALSE)
-summary(boost.body.size.geomorph.tree.100x)
-```
-
-
-Body Size (using only human pressure community attributes)
-```{r}
-boost.body.size.hum.press.tree <- gbm(formula = MaxL~pop_50km+pop_500km+Dist_nearest_pop+Dist_nearest_market+HDI+GDP+FishingEffort01+FishingEffort05, data = fb, n.trees = 100000)
-
-boost.body.size.hum.press.tree.100x <- gbm.more(boost.body.size.hum.press.tree, 100, verbose = FALSE)
-summary(boost.body.size.hum.press.tree.100x)
-
-
-plot.gbm(boost.body.size.hum.press.tree,i.var=4, continuous.resolution = 30)
-
-```
-
-
 
 Partial Dependence Plot (Body size ~ Depth)
 ```{r}
-y <- fb$MaxL
-model.svm <- svm(MaxL~., data = fb, probability = TRUE)
-pred <- predict(model.svm, fb, probability = TRUE)
-table(y, pred)
-par.Depth <- partial(model.svm, pred.var = c("Depth"), chull = TRUE)
-plot.Depth <- autoplot(par.Depth, contour = TRUE)
-plot.Depth
-
-plot.gbm(boost.body.size.geomorph.tree,i.var=1, continuous.resolution = 10)
+plot.gbm(boost.body.size.high.cont.tree,i.var=1, continuous.resolution = 5)
 ```
 
 
@@ -450,15 +393,7 @@ knitr::include_graphics("images/Figure4B.png")
 
 Partial Dependence Plot (Body size ~ Distance to nearest market)
 ```{r}
-y <- fb$MaxL
-model.svm <- svm(MaxL~., data = fb, probability = TRUE)
-pred <- predict(model.svm, fb, probability = TRUE)
-table(y, pred)
-par.Dist_nearest_market <- partial(model.svm, pred.var = c("Dist_nearest_market"), chull = TRUE)
-plot.Dist_nearest_market <- autoplot(par.Dist_nearest_market, contour = TRUE)
-plot.Dist_nearest_market
-
-ggplot(data=fb, aes(x=Dist_nearest_market, y = MaxL)) + geom_point()
+plot.gbm(boost.body.size.high.cont.tree,i.var=4, continuous.resolution = 6)
 ```
 
 ```{r echo=FALSE, width="200px"}
@@ -473,32 +408,32 @@ table(fb['location'])
 
 Plotting densities of species richness and body size (shark abundance not included)
 
-Species Richness
+Defining Protection Status by location
 ```{r}
-
-
-fb <- fb %>% 
-  mutate(unprotected )
-
-#mutate new column called protection level if location =, then facet_wrap density by proection level 
-
 unprotected.locations <- c("GAM", "NEW", "PAL", "RAP", "RAPB", "TON")
 part.protected.location <- c("TIM", "DHI", "PC")
 no.take.mpas <- c("CH")
 
-protection.level <- c("unprotected.locations", "part.protected.location", "no.take.mpas")
+#creating new dataframe, also called fb, containing new column called "protection", indicating protection level of deployments based on protection status of deployment's given geographic location 
+fb <- fb %>%
+  mutate(fb, protection = if_else(location %in% unprotected.locations, "unprotected",
+                              if_else(location %in% part.protected.location, "part.protected",
+                                      "protected")))
+```
 
 
-a <- ggplot(fb, aes(x = SR)) + geom_density_ridges(aes(fill = protection.level)) + scale_fill_manual(values = c("#00AFBB", "E7B800", "FC4E07"))
+Species Richness
+```{r}
+a <- ggplot(fb, aes(x = SR, fill = protection, y = protection,)) + geom_density_ridges()#+ facet_wrap(~protection)
 a
+```
 
 
 
-
-
-sr.density <- density(f$SR, from = 0) 
-sr.density.plot <- plot(sr.density) %>%
-  group_by(protection.level)
+Body Size
+```{r}
+b <- ggplot(fb, aes(x = MaxL, fill = protection, y = protection)) + geom_density_ridges()#+ facet_wrap(~protection)
+b
 ```
 
 ```{r echo=FALSE, width="200px"}
