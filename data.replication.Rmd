@@ -37,6 +37,7 @@ library(pdp)
 library(knitr)
 library(dplyr)
 library(janitor)
+library(readr)
 ```
 
 Function gbm.plot from the gbm package in R to be used in boosted regression tree analysis
@@ -192,11 +193,12 @@ gbm.plot <-
   }
 ```
 
-Importing raw data used in paper. This specific data file has 1041 data points, corresponding to 1041 baited underwater deployments employed at various locations throughout the Indo-Pacific. For each deployment, there is information pertaining to species richness at each location (SR), shark abundance (TASharks = (log[SumMaxN]+1)), where MaxN is the maximum amount of individuals observed during the 2-hour recording periods, the mean maximum body size for each deployment (MaxL), and 18 explanatory variables (predator community attributes) for SR, TaSharks, and MaxL, categorized as either: geomorphological, environmental, or human pressure. 
+Importing raw data used in publication. This specific data file has 1041 data points, corresponding to 1041 baited underwater deployments employed at various locations throughout the Indo-Pacific. For each deployment, there is information pertaining to species richness at each location (SR), shark abundance (TASharks = (log[SumMaxN]+1)), where MaxN is the maximum amount of individuals observed during the 2-hour recording periods, the mean maximum body size for each deployment (MaxL), and 18 explanatory variables (predator community attributes) for SR, TaSharks, and MaxL, categorized as either: geomorphological, environmental, or human pressure. 
 ```{r}
 library(readxl)
 f <- read_excel("data/raw.sr.bodysize.sharkabundance.xlsx")
 colnames(f)[1] <- "location"
+head(f)
 ```
 
 
@@ -215,12 +217,12 @@ Note: Frequency distribution plots visualize the number of observations (in this
 Species Richness (Figure 1B)
 ```{r}
 #Species Richness
-sr.density <- density(f$SR, from = 0) #obtaining frequency distribution of species richness using the density function
-sr.density.plot <- plot(sr.density)   #plotting the frequency distribution of species richness 
+sr.density <- density(f$SR, from = 0)#obtaining frequency distribution of species richness using the density function
+sr.density.plot <- plot(sr.density)#plotting the frequency distribution of species richness 
 ```
 
 ```{r echo=FALSE, width="200px"}
-knitr::include_graphics("images/Figure1B.png") #Embedding Figure 1B from paper to show side-by-side comparison between the paper's results and my re-analysis of the data
+knitr::include_graphics("images/Figure1B.png")#Embedding Figure 1B from paper to show side-by-side comparison between the paper's results and my re-analysis of the data
 ```
 
 Overall, the species richness graph in the paper and the one generated in re-analysis were fairly similar to one another with respect to scale on the x and y axis as well as distribution shape and position, however, the figure in the paper is more smoothly distributed, likely due to the number of bins or kernels used in plotting.  
@@ -230,12 +232,12 @@ Overall, the species richness graph in the paper and the one generated in re-ana
 Body Size (Figure 1C)
 ```{r}
 #Body Size
-body.size.density <- density(f$MaxL, from = 0)     #obtaining frequency distribution of body size using the density function
-body.size.density.plot <- plot(body.size.density)  #plotting the frequency distribution of body size 
+body.size.density <- density(f$MaxL, from = 0)#obtaining frequency distribution of body size using the density function
+body.size.density.plot <- plot(body.size.density)#plotting the frequency distribution of body size 
 ```
 
 ```{r echo=FALSE, width="200px"}
-knitr::include_graphics("images/Figure1C.png")   #Embedding Figure 1C from paper to show side-by-side comparison between the paper's results and my re-analysis of the data
+knitr::include_graphics("images/Figure1C.png")#Embedding Figure 1C from paper to show side-by-side comparison between the paper's results and my re-analysis of the data
 ```
 
 Overall, the species richness graph in the paper and the one generated in re-analysis were fairly similar to one another with respect to scale on the x and y axis as well as distribution shape and position. 
@@ -246,15 +248,14 @@ Shark Abundance (Figure 1D)
 ```{r}
 #Shark Abundance
 
-fb <- f %>% mutate(Shark.Abundance = exp(TaSharks)-1)   #Shark abundance was recorded in raw data as TaSharks (log[SumMaxN +1]), so upon correspondence with the lead author, a new data frame was created called "fb" where a new column was mutated (created) called Shark.Abundance, which un-transformed (took the exponent of TaSharks and subtracted 1) TaSharks values at each deployment.   
-a <- ggplot(fb, aes(x = Shark.Abundance))               #plotting transformed shark abundance data using ggplot and taking frequency distribution using geom_density() function in ggplot2  
+fb <- f %>% mutate(Shark.Abundance = exp(TaSharks)-1)#Shark abundance was recorded in raw data as TaSharks (log[SumMaxN +1]), so upon correspondence with the lead author, a new data frame was created called "fb" where a new column was mutated (created) called Shark.Abundance, which un-transformed (took the exponent of TaSharks and subtracted 1) TaSharks values at each deployment.   
+head(fb)
+a <- ggplot(fb, aes(x = Shark.Abundance))#plotting transformed shark abundance data using ggplot and taking frequency distribution using geom_density() function in ggplot2  
 a + geom_density() 
-summary(fb$Shark.Abundance)                             #taking summary statistics of transformed shark abundance data        
-summary(fb)
 ```
  
 ```{r echo=FALSE, width="200px"}
-knitr::include_graphics("images/Figure1D.png")    #Embedding Figure 1D from paper to show side-by-side comparison between the paper's results and my re-analysis of the data
+knitr::include_graphics("images/Figure1D.png")#Embedding Figure 1D from paper to show side-by-side comparison between the paper's results and my re-analysis of the data
 ``` 
 
 Interestingly, the shark abundance plot generated in re-analysis of the transformed TaShark data is starkly different from the same shark abundance frequency distribution plot in the publication, both with respect to the shape of the plot as well as the scale of the plot. This may be either due to a faulty data transformation error in data re-analysis, or that TaSharks may be the wrong variable used to plot shark abundance. 
@@ -265,15 +266,15 @@ Then, shark abundance was plotted for each region in which baited remote underwa
 
 Shark Abundance Box plots (Figure 1E)
 ```{r}
-fb$location <- gsub("[0-9]", "", as.character(f$location)) #removing numbers from location column in dataframe "fb" for all 1041 deployments using function gsub to make sure all deployments from same geographic location had same name (e.g. CH2001 -> CH  & GAM051 -> GAM)
-shark.abund.boxplot <- boxplot(fb$Shark.Abundance~fb$location) #plotting shark abundance with respect to location (each region in which baited remote underwater video systems were deployed)
-shark.abund.boxplot
+fb$location <- gsub("[0-9]", "", as.character(f$location))#removing numbers from location column in dataframe "fb" for all 1041 deployments using function gsub to make sure all deployments from same geographic location had same name (e.g. CH2001 -> CH  & GAM051 -> GAM)
+head(fb)
+shark.abund.boxplot <- boxplot(fb$Shark.Abundance~fb$location)#plotting shark abundance with respect to location (each region in which baited remote underwater video systems were deployed)
 ```
 
 
 
 ```{r echo=FALSE, width="200px"}
-knitr::include_graphics("images/Figure1E.png")      #Embedding Figure 1E from paper to show side-by-side comparison between the paper's results and my re-analysis of the data
+knitr::include_graphics("images/Figure1E.png")#Embedding Figure 1E from paper to show side-by-side comparison between the paper's results and my re-analysis of the data
 ```
 
 Similar to Figure 1D, Figure 1E in the re-analysis is starkly different than the Figure 1E plot in the publication. In the raw dataset (/data/raw.sr.bodysize.sharkabundance.xlsx), there are 1041 datapoints (individual deployments), the exact same number reported in the publication, however, there are 11 different locations listed in the raw data Excel sheet yet only 9 locations in the publication. Upon correspondence with the lead author, there were typos for the location name of some deployments, however, it was still difficult to assign mismatches to their proper locations since most locations had roughly, yet not the exact same number of deployments reported for both the publication and raw Excel sheet. Therefore, mismatches were left as such. Interestingly, despite the mismatches in number of deployments across sites, the scale of the plots (on the y-axis) are massively different and are much higher for the re-analyzed data, which are likely due to errors in data transformation or usage of the wrong variable (TaSharks) for plotting. 
@@ -285,7 +286,12 @@ Due to the difficulty of data transformation of shark abundance data, no further
 
 
 
-Then, boosted regression trees (BRTs) were used to identify the relative contribution of multiple geomorphological, environmental, and human pressure variables to species richness and body size. Contribution of variables to shark abundance were not assessed. 
+Then, boosted regression trees (BRTs) were used to identify the relative contribution of multiple geomorphological, environmental, and human pressure variables to species richness and body size. Contribution of variables to shark abundance were not assessed. Parameters of model were included in file "brt.parameters.models.specific.predator.attributes.csv". 
+
+```{r}
+brt.parms <- read_csv("data/brt.parameters.models.specific.predator.attributes.csv")
+brt.parms
+```
 
 Note:
 It was unclear how the authors went about narrowing down the number of community attributes used for the regression trees for species richness, body size, as well as shark abundance, or how they defined each variable as either a environmental, geomorphological, or human pressure predatory community attribute. Therefore, two BRTs were performed for species richness and body size each, one BRT with all potential explanatory variables that may contribute to the response variable, and one with just the variables included in the figure in the publication to see if the results found in the paper's figures were obtainable. 
@@ -297,13 +303,14 @@ Boosted Regression Trees (BRTs) for relative contribution of variables to Specie
 Species Richness (Figure 3A) (includes all potential variables that may contribute to species richness across sites).
 ```{r}
 #use species richness as the response variable, including all variables
-boost.sp.rich.tree <- gbm(formula = SR~+Depth+Chla_median+Chla_sd+SST_median+SST_sd+pop_50km+pop_500km+Dist_nearest_pop+Dist_nearest_market+HDI+Dcoast_km+DCoralT_km+DistSeamount_km+GDP+Dist_SMT1500+FishingEffort01+FishingEffort05, data = fb, n.trees = 50, shrinkage = 0.01, bag.fraction = 0.5, distribution = "poisson")  #using all  predator community attributes catergorized as either 1) geomorphology, 2) environmental conditions, or 3) human pressure to identify which had the highest relative influence on species richness using 10000 decision trees using the gbm package and parameters specified in the file "brt.parameters.models.specific.predator.attributes.csv"
+boost.sp.rich.tree <- gbm(formula = SR~+Depth+Chla_median+Chla_sd+SST_median+SST_sd+pop_50km+pop_500km+Dist_nearest_pop+Dist_nearest_market+HDI+Dcoast_km+DCoralT_km+DistSeamount_km+GDP+Dist_SMT1500+FishingEffort01+FishingEffort05, data = fb, n.trees = 50, shrinkage = 0.01, bag.fraction = 0.5, distribution = "poisson")#using all  predator community attributes catergorized as either 1) geomorphology, 2) environmental conditions, or 3) human pressure to identify which had the highest relative influence on species richness using the gbm package and parameters specified in the file "brt.parameters.models.specific.predator.attributes.csv"
 summary(boost.sp.rich.tree)  #summary of the results
 ```
 
 ```{r echo=FALSE, width="200px"}
-knitr::include_graphics("images/Figure3A.png")     #Embedding Figure 3A from paper to show side-by-side comparison between the paper's results and my re-analysis of the data
+knitr::include_graphics("images/Figure3A.png")#Embedding Figure 3A from paper to show side-by-side comparison between the paper's results and my re-analysis of the data
 ```
+
 The plot from Figure 3A in the publication is vastly different from the figure produced from re-analysis of the raw data. It was not clear if the authors had specific criteria for selecting contributing variables since only 6 variables were plotted as having influence on species richness, yet there were 17 variables from each of the 1041 deployments in the raw data set. It was also unclear whether any of the other variables underwent data transformation which I did not account for, which would likely influence these variable's contribution to species richness. In addition, the file "brt.parameters.models.specific.predator.attributes.csv" included parameters included in Figure 3A in the paper, however, I was unable to add spatial autocorrelation as a parameter in the model, which likely also influenced the outcome of the re-analyzed BRT. 
 
 
@@ -312,14 +319,9 @@ The plot from Figure 3A in the publication is vastly different from the figure p
 Species Richness (using variables found as having highest relative contribution in Figure3A in publication)
 ```{r}
 #use species richness as the response variable, including all variables
-boost.sp.rich.high.cont.tree <- gbm(formula = SR~+Dcoast_km+DCoralT_km+Depth+SST_median+SST_sd+DistSeamount_km, data = fb, n.trees = 50, shrinkage = 0.01, bag.fraction = 0.5, distribution = "poisson")
-                            
-                            
-                            
-                            
-                #using all  predator community attributes catergorized as either 1) geomorphology, 2) environmental conditions, or 3) human pressure to identify which had the highest relative influence on species richness using 10000 decision trees using the gbm package 
+boost.sp.rich.high.cont.tree <- gbm(formula = SR~+Dcoast_km+DCoralT_km+Depth+SST_median+SST_sd+DistSeamount_km, data = fb, n.trees = 50, shrinkage = 0.01, bag.fraction = 0.5, distribution = "poisson")#using all  predator community attributes found as having highest relative contribution in Figure3A in publication to identify which had the highest relative influence on species richness using the gbm package and parameters specified in the file "brt.parameters.models.specific.predator.attributes.csv"
 
-summary(boost.sp.rich.high.cont.tree)  #summary of the results
+summary(boost.sp.rich.high.cont.tree)#summary of the results
 ```
 The BRT in re-analysis using only variables found in Figure 3A in the publication was starkly different than Figure 3A in the publication. It is unclear why there is such a stark difference in plot outcome, both with respect to variable contribution as well as scale of contribution, however, it may be due to the fact that variables included in Figure 3A were transformed before usage in BRT analysis. 
 
@@ -331,26 +333,27 @@ Then, partial dependence plots were used to identify the relationship between di
 
 Partial Dependence Plot (Figure 3B) (Species richness ~ Distance to coast)
 ```{r}
-plot.gbm(boost.sp.rich.high.cont.tree,i.var=1, continuous.resolution = 12)    
+plot.gbm(boost.sp.rich.high.cont.tree,i.var=1, continuous.resolution = 12)#using plot.gbm function in gbm package to generate partial dependence plot, i.var =1 was used because Dcoast_km was first variable in "boost.sp.rich.high.cont.tree", and continuous.resolution of 12 was resulting most closely resembling Figure 3B
 ```
 
 ```{r echo=FALSE, width="200px"}
-knitr::include_graphics("images/Figure3B.png")            #Embedding Figure 3B from paper to show side-by-side comparison between the paper's results and my re-analysis of the data
+knitr::include_graphics("images/Figure3B.png")#Embedding Figure 3B from paper to show side-by-side comparison between the paper's results and my re-analysis of the data
 ```
 
-Overall, the partial dependence plot for identifying the relationship between distance to the coast and species richness were similar in the fact that there is an overall negative trend between species richness and distance to coast, however, there appears to be a plateau from 0-~275 km in the re-analyzed plot. It is unclear exactly why there's a difference between the results in these two figures since re-analyzed data was un-transformed and plotted. 
+Overall, the partial dependence plot for identifying the relationship between distance to the coast and species richness were similar in the fact that there is an overall negative trend between species richness and distance to coast, however, there appears to be a plateau from 0-~275 km in the re-analyzed plot. It is unclear exactly whether there were more specifications used to produce the figure in the publication, leading to the observed ifference between the results in these two figures since re-analyzed data was un-transformed and plotted. 
 
 
 
-Partial Dependence Plot (Species richness ~ Distance to Coral Triangle)
+Partial Dependence Plot (Figure 3C) (Species richness ~ Distance to Coral Triangle)
 ```{r}
-plot.gbm(boost.sp.rich.high.cont.tree,i.var=2, continuous.resolution = 6)
+plot.gbm(boost.sp.rich.high.cont.tree,i.var=2, continuous.resolution = 6)#using plot.gbm function in gbm package to generate partial dependence plot, i.var =1 was used because DcoralT_km was second variable in "boost.sp.rich.high.cont.tree", and continuous.resolution of 6 was resulting most closely resembling Figure 3B
 ```
 
 ```{r echo=FALSE, width="200px"}
-knitr::include_graphics("images/Figure3C.png")                #Embedding Figure 3C from paper to show side-by-side comparison between the paper's results and my re-analysis of the data
+knitr::include_graphics("images/Figure3C.png")#Embedding Figure 3C from paper to show side-by-side comparison between the paper's results and my re-analysis of the data
 ```
-Overall, the partial dependence plot for identifying the relationship between distance to the Coral Triangle and species richness were similar in the fact that there is an overall negative trend between species richness and distance to coast, however, there appears to be a plateau from 0-~5500 km in the re-analyzed plot. It is unclear exactly why there's a difference between the results in these two figures since re-analyzed data was un-transformed and plotted. 
+
+Overall, the partial dependence plot for identifying the relationship between distance to the Coral Triangle and species richness were similar in the fact that there is an overall negative trend between species richness and distance to coast, however, there appears to be a plateau from 0-~5500 km in the re-analyzed plot. It is unclear exactly whether there were more specifications used to produce the figure in the publication, leading to the observed ifference between the results in these two figures since re-analyzed data was un-transformed and plotted. 
 
 
 
@@ -367,27 +370,24 @@ Body Size (Figure 4A) (includes all potential variables that may contribute to s
 #use species richness as the response variable, including all variables
 boost.body.size.tree <- gbm(formula = MaxL~+Depth+Chla_median+Chla_sd+SST_median+SST_sd
                           +pop_50km+pop_500km+Dist_nearest_pop+Dist_nearest_market+HDI+Dcoast_km+DCoralT_km+DistSeamount_km+GDP+Dist_SMT1500+FishingEffort01+FishingEffort05, data = fb, n.trees = 50, shrinkage = 0.01, bag.fraction = 0.5, distribution = "gaussian")
-summary(boost.body.size.tree)#using all  predator community attributes catergorized as either 1) geomorphology, 2) environmental conditions, or 3) human pressure to identify which had the highest relative influence on body size using 10000 decision trees using the gbm package and parameters specified in "brt.parameters.models.specific.predator.attributes.csv"
+summary(boost.body.size.tree)#using all  predator community attributes catergorized as either 1) geomorphology, 2) environmental conditions, or 3) human pressure to identify which had the highest relative influence on body size using the gbm package and parameters specified in the file "brt.parameters.models.specific.predator.attributes.csv"
 ```
 
 ```{r echo=FALSE, width="200px"}
-knitr::include_graphics("images/Figure4A.png")                   #Embedding Figure 4A from paper to show side-by-side comparison between the paper's results and my re-analysis of the data
+knitr::include_graphics("images/Figure4A.png")#Embedding Figure 4A from paper to show side-by-side comparison between the paper's results and my re-analysis of the data
 ```
 
-```{r}
-boost.body.size.high.cont.tree <- gbm(formula = MaxL~+Depth+DistSeamount_km+SST_median+Dist_nearest_market+Dist_nearest_pop, data = fb, n.trees = 50, shrinkage = 0.01, bag.fraction = 0.5, distribution = "gaussian")
-                            
-                            
-                            
-                            
-                #using all  predator community attributes catergorized as either 1) geomorphology, 2) environmental conditions, or 3) human pressure to identify which had the highest relative influence on species richness using 10000 decision trees using the gbm package 
 
-summary(boost.body.size.high.cont.tree)  #summary of the results
+Body size (using variables found as having highest relative contribution in Figure4A in publication)
+```{r}
+boost.body.size.high.cont.tree <- gbm(formula = MaxL~+Depth+DistSeamount_km+SST_median+Dist_nearest_market+Dist_nearest_pop, data = fb, n.trees = 50, shrinkage = 0.01, bag.fraction = 0.5, distribution = "gaussian")#using all  predator community attributes found as having highest relative contribution in Figure4A in publication to identify which had the highest relative influence on species richness using the gbm package and parameters specified in the file "brt.parameters.models.specific.predator.attributes.csv"
+
+summary(boost.body.size.high.cont.tree)#summary of the results
 ```
 
-Partial Dependence Plot (Body size ~ Depth)
+Partial Dependence Plot (Figure 4B) (Body size ~ Depth)
 ```{r}
-plot.gbm(boost.body.size.high.cont.tree,i.var=1, continuous.resolution = 5)
+plot.gbm(boost.body.size.high.cont.tree,i.var=1, continuous.resolution = 5)#using plot.gbm function in gbm package to generate partial dependence plot, i.var =1 was used because DcoralT_km was second variable in "boost.sp.rich.high.cont.tree", and continuous.resolution of 6 was resulting most closely resembling Figure 3B
 ```
 
 
@@ -395,30 +395,35 @@ plot.gbm(boost.body.size.high.cont.tree,i.var=1, continuous.resolution = 5)
 knitr::include_graphics("images/Figure4B.png")#Embedding Figure 4B from paper to show side-by-side comparison between the paper's results and my re-analysis of the data
 ```
 
-Partial Dependence Plot (Body size ~ Distance to nearest market)
+Overall, the plot produced in re-analysis was highly similar in scale and the linear relationship shown between depth and body size, however, no data points were plotted in the re-analyzed plot, likely due to missing specifications that were liekly used to produce the plot in the publication. 
+
+
+Partial Dependence Plot (Figure 4C) (Body size ~ Distance to nearest market)
 ```{r}
-plot.gbm(boost.body.size.high.cont.tree,i.var=4, continuous.resolution = 10)
+plot.gbm(boost.body.size.high.cont.tree,i.var=4, continuous.resolution = 10)#using plot.gbm function in gbm package to generate partial dependence plot, i.var =1 was used because Dist_nearest_market was fourth variable in "boost.sp.rich.high.cont.tree", and continuous.resolution of 10 was resulting most closely resembling Figure 3B
 ```
 
 ```{r echo=FALSE, width="200px"}
-knitr::include_graphics("images/Figure4C.png")
+knitr::include_graphics("images/Figure4C.png")#Embedding Figure 4C from paper to show side-by-side comparison between the paper's results and my re-analysis of the data
 ```
 
-Counting number of datapoints in each location
+The plot produced in re-analysis was similar in scale to the plot in the publication, however, it is unclear why there is such a stark difference in the plot in re-analysis compared to the plto in the publication. 
+
+
+Now, the number of datapoints in each location was calculated. Compared to the results in the publication (Figure 1A), despite there being 1041 data points in the publication and in the raw data file, there are discrepancies in the exact number of data points in each site, and in the publication, there are 9 locations, whereas in the data file, there are 11. This was likely due to a typo as well as errors in raw data curation. 
 ```{r}
 table(fb['location'])
 ```
 
 
-Plotting densities of species richness and body size (shark abundance not included)
+Now, the densities of species richness and body size were plotted according to different management regimes (as shown in Figure 1A). Shark abundance was not analyzed due to the reasons specified in early shark abundance data analysis.
 
-Defining Protection Status by location
 ```{r}
+#Defining different management regimes of deployments in different geographic locations (Figure 6A and 6B) using information from Figure 1A.
 unprotected.locations <- c("GAM", "NEW", "PAL", "RAP", "RAPB", "TON")
 part.protected.location <- c("TIM", "DHI", "PC")
 no.take.mpas <- c("CH")
-
-#creating new dataframe, also called fb, containing new column called "protection", indicating protection level of deployments based on protection status of deployment's given geographic location 
+#Creating new data frame, also called "fb", containing new column called "protection", where management level is specified based on the 3 lines above, using multiple if_else statements. 
 fb <- fb %>%
   mutate(fb, protection = if_else(location %in% unprotected.locations, "unprotected",
                               if_else(location %in% part.protected.location, "part.protected",
@@ -426,31 +431,50 @@ fb <- fb %>%
 ```
 
 
-Species Richness
+Plotting frequency distributions of species richness and body size predicted to occur under different management regimes. 
+
+Species Richness frequency distribution (Figure 6A)
 ```{r}
-a <- ggplot(fb, aes(x = SR, fill = protection, y = protection,)) + geom_density_ridges()#+ facet_wrap(~protection)
+a <- ggplot(fb, aes(x = SR, fill = protection, y = protection,)) + geom_density_ridges()#using ggplot to plot frequency distributions of species richness (x). Y acts similar to facet_wrap, where each curve corresponds to species richness for all locations in one of three specified management regimes, and geom_density_ridges plots the species richness frequency distribution for each management regime. 
 a
 ```
 
 
 
-Body Size
+Body Size frequency distribution (Figure 6B)
 ```{r}
-b <- ggplot(fb, aes(x = MaxL, fill = protection, y = protection)) + geom_density_ridges()#+ facet_wrap(~protection)
+b <- ggplot(fb, aes(x = MaxL, fill = protection, y = protection)) + geom_density_ridges()#using ggplot to plot frequency distributions of body size (x). Y acts similar to facet_wrap, where each curve corresponds to species richness for all locations in one of three specified management regimes, and geom_density_ridges plots the body size frequency distribution for each management regime. 
 b
 ```
 
 ```{r echo=FALSE, width="200px"}
-knitr::include_graphics("images/Figure6A.B.png")
+knitr::include_graphics("images/Figure6A.B.png")#Embedding Figure 6A and 6B from paper to show side-by-side comparison between the paper's results and my re-analysis of the data
 ```
 
 
+Overall, the re-analyzed plots appear to be roughly similar to those in the publication, however, mismatches in the number of deployments for each geographic location, as well as the inclusion of other code specifications used to produce the publication's figure, which were likely not used in re-analysis, likely also contribute to the discrepancy between the publication's plots and the re-analyzed plots. 
 
 
-Section for analyzing result discrepancy between re-analysis and publication results
-```{r}
+Discussion and Reflection
 
-```
+  Overall, some re-analyzed figures are highly similar to those presented in the publication, however, the majority the other re-analyzed figures are either mildly or starkly different than those presented in the publication. For example, re-analyzed plots of the frequency distributions of both species richness and body size (Figures 1A and 1B) were highly similar to those presented in the publication. In addition, partial dependence plots of species richness with respect to distance to coast (Figure 3B), as well as to distance to the Coral Triangle (Figure 3C), are highly similar to those presented in the publication. In addition, the partial dependence plot of body size with respect to depth (Figure 4B) is also highly similar to the figure presented in the publication. 
+  On the other hand, re-analysis of the shark abundance frequency distribution plot (Figure 1D) produced a figure starkly different than that presented in the paper. TaSharks, a log-transformed variable attributed to shark abundance, was un-transformed before plotting in the publication. Upon correspondence with the lead author of the publication, it was advised to un-transform TaSharks before plotting shark abundance. There was still a discrepancy in plot outcome, however, even after data un-transformation, and it is unclear whether further data transformation was employed before utilizing shark abundance data for analysis and plotting. 
+  In addition, re-analysis of shark abundance per geographic region (Figure 1E) also produced a starkly different plot than that presented in the publication. This could be due to erroneous un-transformation of TaSharks, however, upon closer inspection, it appeared that there were more geographic locations in the re-analyzed plot than that in the publication (9 in the publication vs. 11 in the raw data file). Upon correspondence with the main author, it appears that there were likely typos in geographic location names, however, there also appeared to be discrepancies between the number of data points (deployments) reported in Figure 1A and in the raw data file "raw.sr.bodysize.sharkabundance.xlsx" for each geographic location, despite 1041 deployments in both Figure 1A and in the raw data file "raw.sr.bodysize.sharkabundance.xlsx". This may be likely due to errors in raw data curation, and was left unresolved to avoid further confusion. As a result, there were no further analyses including shark abundance. 
+ None of the boosted regression tree re-analyses produced figures marginally close to those presented in the publication. For example, none of the BRTs are similar to those in the publication with respect to percent contribution or identity of predator community attributes to either species richness or body size. The re-analyzed BRTs all report significantly more percent contribution of variables to species richness and body size than the percent contribution reported in the BRTs in the publication, and many of the variables found to contribute significantly to species richness and body size in the publication's figures had some or almost no contribution to species richness and body size in the re-analysed BRTs. Despite there being a file reporting the parameters used for boosted regression tree analysis "brt.parameters.models.specific.predator.attributes.csv", there was confusion about the implementation of certain parameters in the model. For example, it was unclear how to implement the maximum number of trees since there was already a parameter included for the number of trees, as well as for implementing tree complexity. In addition, despite being informed by the lead author to implement spatial autocorrelation, it was unclear on how to implement two spatial autocorrelation parameters: spatial autocorrelation in observations and spatial autocorrelation in residuals of final autocovariate model. In addition, it was also unclear about how the authors went about selecting the different predictor variables to assess their relative contribution to species richness and body size. This is likely due to a general unfamiliarity with coding boosted regression trees in R. 
+  Moreover, the re-analyzed frequency distributions of species richness and body size were slightly different than those presented in the publication. The re-analyzed Figure 6A has the same scale on the x-axis as the one presented in the publication, yet all re-analyzed plots have higher peaks, and re-analysis of Figure 6B produces a plot with a much larger frequency distribution than that in the publication. This difference could be due to the discrepancy between the number of data points (deployments) reported in Figure 1A and in the raw data file "raw.sr.bodysize.sharkabundance.xlsx", which could mis-assign some deployments to the wrong management strategy since they could have been mislabeled with respect to location. It is also unclear whether other specifications were included in the code to produce the figure presented in the publication, which were not included in the code for re-analysis. 
+  
+
+
+
+
+
+
+
+
+
+
+
+
 
 ```{r}
 
