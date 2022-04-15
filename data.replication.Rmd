@@ -458,52 +458,12 @@ Overall, the re-analyzed plots appear to be roughly similar to those in the publ
 Discussion and Reflection
 
   Overall, some re-analyzed figures are highly similar to those presented in the publication, however, the majority the other re-analyzed figures are either mildly or starkly different than those presented in the publication. For example, re-analyzed plots of the frequency distributions of both species richness and body size (Figures 1A and 1B) were highly similar to those presented in the publication. In addition, partial dependence plots of species richness with respect to distance to coast (Figure 3B), as well as to distance to the Coral Triangle (Figure 3C), are highly similar to those presented in the publication. In addition, the partial dependence plot of body size with respect to depth (Figure 4B) is also highly similar to the figure presented in the publication. 
+  
   On the other hand, re-analysis of the shark abundance frequency distribution plot (Figure 1D) produced a figure starkly different than that presented in the paper. TaSharks, a log-transformed variable attributed to shark abundance, was un-transformed before plotting in the publication. Upon correspondence with the lead author of the publication, it was advised to un-transform TaSharks before plotting shark abundance. There was still a discrepancy in plot outcome, however, even after data un-transformation, and it is unclear whether further data transformation was employed before utilizing shark abundance data for analysis and plotting. 
+  
   In addition, re-analysis of shark abundance per geographic region (Figure 1E) also produced a starkly different plot than that presented in the publication. This could be due to erroneous un-transformation of TaSharks, however, upon closer inspection, it appeared that there were more geographic locations in the re-analyzed plot than that in the publication (9 in the publication vs. 11 in the raw data file). Upon correspondence with the main author, it appears that there were likely typos in geographic location names, however, there also appeared to be discrepancies between the number of data points (deployments) reported in Figure 1A and in the raw data file "raw.sr.bodysize.sharkabundance.xlsx" for each geographic location, despite 1041 deployments in both Figure 1A and in the raw data file "raw.sr.bodysize.sharkabundance.xlsx". This may be likely due to errors in raw data curation, and was left unresolved to avoid further confusion. As a result, there were no further analyses including shark abundance. 
+ 
  None of the boosted regression tree re-analyses produced figures marginally close to those presented in the publication. For example, none of the BRTs are similar to those in the publication with respect to percent contribution or identity of predator community attributes to either species richness or body size. The re-analyzed BRTs all report significantly more percent contribution of variables to species richness and body size than the percent contribution reported in the BRTs in the publication, and many of the variables found to contribute significantly to species richness and body size in the publication's figures had some or almost no contribution to species richness and body size in the re-analysed BRTs. Despite there being a file reporting the parameters used for boosted regression tree analysis "brt.parameters.models.specific.predator.attributes.csv", there was confusion about the implementation of certain parameters in the model. For example, it was unclear how to implement the maximum number of trees since there was already a parameter included for the number of trees, as well as for implementing tree complexity. In addition, despite being informed by the lead author to implement spatial autocorrelation, it was unclear on how to implement two spatial autocorrelation parameters: spatial autocorrelation in observations and spatial autocorrelation in residuals of final autocovariate model. In addition, it was also unclear about how the authors went about selecting the different predictor variables to assess their relative contribution to species richness and body size. This is likely due to a general unfamiliarity with coding boosted regression trees in R. 
+ 
   Moreover, the re-analyzed frequency distributions of species richness and body size were slightly different than those presented in the publication. The re-analyzed Figure 6A has the same scale on the x-axis as the one presented in the publication, yet all re-analyzed plots have higher peaks, and re-analysis of Figure 6B produces a plot with a much larger frequency distribution than that in the publication. This difference could be due to the discrepancy between the number of data points (deployments) reported in Figure 1A and in the raw data file "raw.sr.bodysize.sharkabundance.xlsx", which could mis-assign some deployments to the wrong management strategy since they could have been mislabeled with respect to location. It is also unclear whether other specifications were included in the code to produce the figure presented in the publication, which were not included in the code for re-analysis. 
   
-
-
-
-
-
-
-
-
-
-
-
-
-
-```{r}
-
-```
-
-```{r}
-
-```
-
-```{r}
-
-```
-
-```{r}
-
-```
-
-```{r}
-
-```
-
-```{r}
-
-```
-
-```{r}
-
-```
-
-```{r}
-
-```
